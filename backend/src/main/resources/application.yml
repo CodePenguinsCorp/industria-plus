@@ -1,0 +1,31 @@
+server:
+  port: ${APP_PORT:8080}
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: industria-plus-backend
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:industria_plus}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Sao_Paulo
+    username: ${DB_USER:industria_app}
+    password: ${DB_PASSWORD:industria123}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}

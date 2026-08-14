@@ -1,0 +1,72 @@
+<section class="hero">
+  <div class="hero__copy">
+    <span class="hero__eyebrow">Helpdesk industrial</span>
+    <h1>Manutencao organizada antes que a fabrica pare.</h1>
+    <p>
+      O Industria Plus organiza equipamentos, setores e chamados por urgencia para ajudar a equipe
+      tecnica a atuar primeiro no que mais impacta a operacao.
+    </p>
+
+    <div class="hero__actions">
+      <a class="hero__button hero__button--primary" href="#kickoff">Ver escopo N1</a>
+      <button class="hero__button hero__button--secondary" type="button" (click)="reloadStatus()">
+        Atualizar health check
+      </button>
+    </div>
+  </div>
+
+  <aside class="status-panel">
+    <div class="status-panel__header">
+      <span>Conexao com a API</span>
+      <span class="status-pill" [ngClass]="backendBadgeClass()">
+        {{ apiStatus()?.status ?? 'PENDENTE' }}
+      </span>
+    </div>
+
+    @if (isLoading()) {
+      <p class="status-panel__message">Consultando backend...</p>
+    } @else if (apiStatus(); as status) {
+      <dl class="status-list">
+        <div>
+          <dt>Aplicacao</dt>
+          <dd>{{ status.applicationName }}</dd>
+        </div>
+        <div>
+          <dt>Ultima resposta</dt>
+          <dd>{{ status.timestamp | date: 'dd/MM/yyyy HH:mm:ss' }}</dd>
+        </div>
+      </dl>
+
+      <div class="stack-tags">
+        @for (item of stackSummary(); track item) {
+          <span>{{ item }}</span>
+        }
+      </div>
+    } @else {
+      <p class="status-panel__message">{{ errorMessage() }}</p>
+    }
+  </aside>
+</section>
+
+<section class="grid" id="kickoff">
+  <article class="panel">
+    <h2>O que entra no N1</h2>
+    <div class="card-list">
+      @for (item of kickoffCards; track item.title) {
+        <div class="info-card">
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.description }}</p>
+        </div>
+      }
+    </div>
+  </article>
+
+  <article class="panel">
+    <h2>Ordem inicial de desenvolvimento</h2>
+    <ol class="next-steps">
+      @for (step of nextSteps; track step) {
+        <li>{{ step }}</li>
+      }
+    </ol>
+  </article>
+</section>

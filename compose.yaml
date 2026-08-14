@@ -1,0 +1,58 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: industria-plus-mysql
+    restart: unless-stopped
+    ports:
+      - "${MYSQL_PORT:-3308}:3306"
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-industria_plus}
+      MYSQL_USER: ${MYSQL_USER:-industria_app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-industria123}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_ROOT_HOST: "%"
+      TZ: America/Sao_Paulo
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  backend:
+    image: industria-plus-backend:local
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: industria-plus-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      APP_PORT: 8080
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${MYSQL_DATABASE:-industria_plus}
+      DB_USER: ${MYSQL_USER:-industria_app}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-industria123}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "${BACKEND_PORT:-8082}:8080"
+
+  frontend:
+    image: industria-plus-frontend:local
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: industria-plus-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-4202}:80"
+
+volumes:
+  mysql_data:

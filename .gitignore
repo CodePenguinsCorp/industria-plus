@@ -1,0 +1,27 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Frontend
+frontend/.angular/
+frontend/coverage/
+frontend/dist/
+frontend/node_modules/
+frontend/.vscode/
+
+# Backend
+backend/.gradle/
+backend/build/
+backend/target/
+*.class
+*.jar
+*.log
+*.war
+
+# IDE and OS
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store
+*.iml
