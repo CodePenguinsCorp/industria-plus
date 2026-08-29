@@ -1,16 +1,23 @@
 <div class="shell">
   <header class="shell__header">
-    <a class="shell__brand" routerLink="/">
-      <span class="shell__brand-mark">IP</span>
+    <a class="shell__brand" routerLink="/" aria-label="Industria Plus — início">
+      <span class="shell__brand-mark" aria-hidden="true">IP</span>
       <span>
         <strong>{{ title }}</strong>
-        <small>Helpdesk de manutencao industrial</small>
+        <small>Manutenção industrial</small>
       </span>
     </a>
 
-    <nav class="shell__nav" aria-label="Navegacao principal">
-      <a routerLink="/">Inicio</a>
-      <a href="#kickoff">Escopo N1</a>
+    <nav class="shell__nav" aria-label="Navegação principal">
+      @for (item of navigation; track item.route) {
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.exact }"
+        >
+          {{ item.label }}
+        </a>
+      }
     </nav>
   </header>
 

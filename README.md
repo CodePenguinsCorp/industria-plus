@@ -1,7 +1,7 @@
 # Industria Plus
 
-Helpdesk para organizar a manutencao preventiva e corretiva de equipamentos industriais. A base
-tecnica utiliza Angular no frontend, Spring Boot no backend e MySQL em Docker.
+Helpdesk para organizar a manutenção preventiva e corretiva de equipamentos industriais. A base
+técnica utiliza Angular no frontend, Spring Boot no backend e MySQL em Docker.
 
 ## Equipe
 
@@ -14,49 +14,55 @@ Grupo: `Code Penguins`
 
 ## Escopo do produto
 
-O N1 entrega o cadastro de equipamentos e setores, a abertura de chamados com nivel de urgencia
-e a atribuicao dos chamados aos tecnicos.
+O N1 entrega o cadastro e a consulta de setores, equipamentos e técnicos, a abertura de chamados
+preventivos ou corretivos, filtros por status e urgência, atribuição e reatribuição de técnicos e o
+acompanhamento do chamado até o encerramento.
 
-Regra de negocio critica: um tecnico nao pode ter mais de dois chamados com urgencia `Alta`
-abertos ao mesmo tempo. Essa validacao deve existir obrigatoriamente no backend.
+Regra de negócio crítica: um técnico não pode ter mais de dois chamados com urgência `Alta`
+abertos ao mesmo tempo. A validação é transacional no backend e protege atribuições concorrentes.
 
-As evolucoes N2/N3 incluem historico de troca de pecas por maquina, calculo de MTBF e
-agendamento automatico de manutencoes preventivas.
+As evoluções N2/N3 incluem histórico de troca de peças por máquina, cálculo de MTBF e
+agendamento automático de manutenções preventivas.
 
-## O que esta pronto
+## O que está pronto
 
-- organizacao inicial do desenvolvimento documentada
-- escopo N1 e evolucoes N2/N3 delimitados
-- estrutura base de `frontend/`, `backend/` e `docs/`
-- `compose.yaml` para subir frontend, backend e MySQL
-- pagina inicial no Angular consumindo o health check da API
-- endpoint `/api/health` no backend para smoke test
+- dashboard operacional com prioridades, indicadores e health check
+- cadastro e consulta de setores, equipamentos e técnicos
+- abertura de chamados preventivos e corretivos com urgência `Baixa`, `Média` ou `Alta`
+- fila ordenada por prioridade e filtrável por status e urgência
+- atribuição e reatribuição com a carga de chamados `Alta` visível por técnico
+- ciclo de vida `Aberto` -> `Em andamento` -> `Encerrado`, com encerramento direto permitido
+- RN-001 protegida por transação e bloqueio pessimista no backend
+- migrations Flyway, erros padronizados e testes automatizados de frontend e backend
+- `compose.yaml` e scripts PowerShell para subir frontend, backend e MySQL
 
 ## Stack definida
 
 - Frontend: Angular 21
+- Estilos: CSS puro global e encapsulado por componente
 - Backend: Java 17 com Spring Boot 3
 - Banco de dados: MySQL 8.4 em Docker
-- Persistencia: Spring Data JPA e Flyway
-- Padroes de codigo: `.editorconfig` na raiz e Prettier no frontend
+- Persistência: Spring Data JPA e Flyway
+- Padrões de código: `.editorconfig` na raiz e Prettier no frontend
 
 ## Estrutura principal
 
-- `frontend/`: aplicacao Angular
+- `frontend/`: aplicação Angular
 - `backend/`: API Spring Boot
-- `docs/`: governanca, qualidade e arquitetura inicial
+- `docs/`: produto, governança, qualidade e arquitetura
 - `compose.yaml`: stack local com MySQL, backend e frontend
-- `run-local.ps1`: subida rapida da stack
+- `run-local.ps1`: subida rápida da stack
 - `stop-local.ps1`: parada da stack
 
-## Documentacao de kickoff
+## Documentação
 
 - [Escopo funcional](docs/produto/escopo.md)
+- [Refinamento e contrato do N1](docs/produto/refinamento-n1.md)
 - [Matriz RACI](docs/governanca/raci.md)
-- [Politica de debito tecnico](docs/governanca/politica-debito-tecnico.md)
-- [Checklist de aprovacao de requisitos](docs/governanca/aprovacao-requisitos.md)
-- [Estrategia de testes](docs/qualidade/estrategia-testes.md)
-- [Stack e organizacao tecnica](docs/arquitetura/stack.md)
+- [Política de débito técnico](docs/governanca/politica-debito-tecnico.md)
+- [Checklist de aprovação de requisitos](docs/governanca/aprovacao-requisitos.md)
+- [Estratégia de testes](docs/qualidade/estrategia-testes.md)
+- [Stack e organização técnica](docs/arquitetura/stack.md)
 - [Branching, commits e linters](docs/qualidade/branching-commits-linters.md)
 
 ## Como executar com Docker
@@ -73,13 +79,25 @@ Copy-Item .env.example .env
 .\run-local.ps1 -Build
 ```
 
-URLs padrao:
+URLs padrão:
 
 - Frontend: `http://localhost:4202`
 - Backend: `http://localhost:8082`
 - API: `http://localhost:8082/api`
 - Health: `http://localhost:8082/api/health`
 - MySQL: `127.0.0.1:3308`
+
+## Fluxo principal do N1
+
+1. Cadastre um setor em `/setores`.
+2. Cadastre um equipamento vinculado ao setor em `/equipamentos`.
+3. Cadastre os técnicos em `/tecnicos`.
+4. Abra, priorize e atribua chamados em `/chamados`.
+5. Inicie ou encerre o atendimento pela fila de chamados.
+
+A API utiliza o contexto `/api` e expõe os recursos `/sectors`, `/equipments`, `/technicians` e
+`/maintenance-requests`. O contrato completo, incluindo payloads, filtros e erros, está no
+[refinamento do N1](docs/produto/refinamento-n1.md).
 
 ## Como executar manualmente
 
@@ -105,7 +123,7 @@ npm install
 npm start
 ```
 
-## Validacoes iniciais
+## Validações
 
 ### Backend
 
@@ -118,5 +136,7 @@ mvn test
 
 ```powershell
 cd frontend
+npm run format
+npm test
 npm run build
 ```

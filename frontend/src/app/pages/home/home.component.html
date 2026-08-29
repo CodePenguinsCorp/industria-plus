@@ -1,72 +1,132 @@
-<section class="hero">
-  <div class="hero__copy">
-    <span class="hero__eyebrow">Helpdesk industrial</span>
-    <h1>Manutencao organizada antes que a fabrica pare.</h1>
-    <p>
-      O Industria Plus organiza equipamentos, setores e chamados por urgencia para ajudar a equipe
-      tecnica a atuar primeiro no que mais impacta a operacao.
-    </p>
-
-    <div class="hero__actions">
-      <a class="hero__button hero__button--primary" href="#kickoff">Ver escopo N1</a>
-      <button class="hero__button hero__button--secondary" type="button" (click)="reloadStatus()">
-        Atualizar health check
-      </button>
-    </div>
-  </div>
-
-  <aside class="status-panel">
-    <div class="status-panel__header">
-      <span>Conexao com a API</span>
-      <span class="status-pill" [ngClass]="backendBadgeClass()">
-        {{ apiStatus()?.status ?? 'PENDENTE' }}
-      </span>
-    </div>
-
-    @if (isLoading()) {
-      <p class="status-panel__message">Consultando backend...</p>
-    } @else if (apiStatus(); as status) {
-      <dl class="status-list">
-        <div>
-          <dt>Aplicacao</dt>
-          <dd>{{ status.applicationName }}</dd>
-        </div>
-        <div>
-          <dt>Ultima resposta</dt>
-          <dd>{{ status.timestamp | date: 'dd/MM/yyyy HH:mm:ss' }}</dd>
-        </div>
-      </dl>
-
-      <div class="stack-tags">
-        @for (item of stackSummary(); track item) {
-          <span>{{ item }}</span>
-        }
+<section class="page-stack">
+  <header class="dashboard-hero">
+    <div>
+      <span class="page-eyebrow">Operação em tempo real</span>
+      <h1>Manutenção organizada antes que a fábrica pare.</h1>
+      <p>Acompanhe a fila, destaque o que é crítico e distribua o trabalho com segurança.</p>
+      <div class="dashboard-hero__actions">
+        <a class="button button--primary" routerLink="/chamados">Abrir novo chamado</a>
+        <a class="button button--secondary" routerLink="/chamados">Ver fila completa</a>
       </div>
-    } @else {
-      <p class="status-panel__message">{{ errorMessage() }}</p>
-    }
-  </aside>
-</section>
+    </div>
+    <div class="dashboard-hero__signal" aria-hidden="true">
+      <span>IP</span>
+      <small>Helpdesk industrial</small>
+    </div>
+  </header>
 
-<section class="grid" id="kickoff">
-  <article class="panel">
-    <h2>O que entra no N1</h2>
-    <div class="card-list">
-      @for (item of kickoffCards; track item.title) {
-        <div class="info-card">
-          <h3>{{ item.title }}</h3>
-          <p>{{ item.description }}</p>
+  @if (errorMessage()) {
+    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-state panel" role="status">Carregando visão operacional...</div>
+  } @else {
+    <section class="metrics-grid" aria-label="Indicadores operacionais">
+      <article class="metric-card metric-card--critical">
+        <span>Urgência Alta</span>
+        <strong>{{ highUrgencyRequests().length }}</strong>
+        <small>chamados abertos</small>
+      </article>
+      <article class="metric-card">
+        <span>Fila ativa</span>
+        <strong>{{ openRequests().length }}</strong>
+        <small>abertos e em andamento</small>
+      </article>
+      <article class="metric-card">
+        <span>Sem técnico</span>
+        <strong>{{ unassignedRequests().length }}</strong>
+        <small>aguardando atribuição</small>
+      </article>
+      <article class="metric-card">
+        <span>Parque fabril</span>
+        <strong>{{ equipments().length }}</strong>
+        <small>equipamentos em {{ sectors().length }} setores</small>
+      </article>
+      <article class="metric-card">
+        <span>Equipe técnica</span>
+        <strong>{{ technicians().length }}</strong>
+        <small>profissionais cadastrados</small>
+      </article>
+    </section>
+
+    <div class="dashboard-grid">
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Prioridades agora</h2>
+            <p class="section-subtitle">Primeiros chamados na ordenação definida pelo backend.</p>
+          </div>
+          <a class="text-link" routerLink="/chamados">Ver todos</a>
         </div>
+
+        @if (priorityRequests().length === 0) {
+          <div class="empty-state empty-state--compact">
+            <strong>Fila sem chamados ativos</strong>
+            <p>A operação está em dia. Novos chamados aparecerão aqui.</p>
+          </div>
+        } @else {
+          <div class="priority-list">
+            @for (request of priorityRequests(); track request.id) {
+              <a class="priority-item" routerLink="/chamados">
+                <span
+                  class="priority-item__marker"
+                  [class.is-high]="request.urgency === 'HIGH'"
+                ></span>
+                <span class="priority-item__copy">
+                  <strong>{{ request.title }}</strong>
+                  <small>{{ request.equipmentName }} · {{ request.sectorName }}</small>
+                </span>
+                <span class="pill" [class]="'urgency--' + request.urgency.toLowerCase()">
+                  {{ urgencyLabel(request.urgency) }}
+                </span>
+              </a>
+            }
+          </div>
+        }
+      </article>
+
+      <article class="panel">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Acesso rápido</h2>
+            <p class="section-subtitle">Continue pelos fluxos essenciais do N1.</p>
+          </div>
+        </div>
+
+        <div class="quick-grid">
+          @for (action of quickActions; track action.route) {
+            <a
+              class="quick-card"
+              [class]="'quick-card--' + action.tone"
+              [routerLink]="action.route"
+            >
+              <span>{{ action.title }}</span>
+              <small>{{ action.description }}</small>
+            </a>
+          }
+        </div>
+      </article>
+    </div>
+  }
+
+  <aside class="health-strip" aria-label="Estado técnico da aplicação">
+    <div>
+      <span
+        class="health-dot"
+        [class.is-online]="healthStatus()?.status === 'UP'"
+        aria-hidden="true"
+      ></span>
+      @if (isHealthLoading()) {
+        <span>Verificando conexão com a API...</span>
+      } @else if (healthStatus(); as status) {
+        <span>API operacional · {{ status.timestamp | date: 'dd/MM/yyyy HH:mm' }}</span>
+      } @else {
+        <span>{{ healthError() }}</span>
       }
     </div>
-  </article>
-
-  <article class="panel">
-    <h2>Ordem inicial de desenvolvimento</h2>
-    <ol class="next-steps">
-      @for (step of nextSteps; track step) {
-        <li>{{ step }}</li>
-      }
-    </ol>
-  </article>
+    <button class="text-button" type="button" (click)="reloadHealthStatus()">
+      Verificar novamente
+    </button>
+  </aside>
 </section>

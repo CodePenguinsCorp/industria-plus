@@ -3,6 +3,7 @@
 ## Decisoes do projeto
 
 - Frontend: Angular 21 com componentes standalone e TypeScript.
+- Estilos: CSS puro global e por componente, sem pre-processador.
 - Backend: Java 17 com Spring Boot 3.
 - Banco: MySQL 8.4 em Docker.
 - Persistencia: Spring Data JPA e migrations com Flyway.

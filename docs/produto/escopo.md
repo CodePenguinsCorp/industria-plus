@@ -49,7 +49,10 @@ As evolucoes previstas, fora do N1, sao:
 
 Esses itens devem passar novamente pelo Definition of Ready antes de entrarem em desenvolvimento.
 
-## Premissas a detalhar no refinamento
+## Premissas refinadas
+
+Os pontos abaixo foram registrados inicialmente como pendências de refinamento e são preservados
+como histórico do levantamento:
 
 - dados obrigatorios de equipamentos, setores e tecnicos
 - niveis de urgencia permitidos alem de `Alta`
@@ -57,3 +60,7 @@ Esses itens devem passar novamente pelo Definition of Ready antes de entrarem em
 - permissoes para abertura, atribuicao, reatribuicao e encerramento
 - criterio para diferenciar manutencao preventiva de corretiva
 - regras de inativacao de equipamentos, setores e tecnicos com historico associado
+
+As decisões adotadas para a implementação e o aceite do N1 estão formalizadas no
+[refinamento funcional do N1](refinamento-n1.md). Esse refinamento complementa o escopo sem alterar
+os requisitos originais nem antecipar funcionalidades de N2/N3.

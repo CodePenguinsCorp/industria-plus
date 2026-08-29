@@ -1,0 +1,129 @@
+<section class="page-stack">
+  <header class="page-hero">
+    <div class="page-hero__copy">
+      <span class="page-eyebrow">Equipe de manutenção</span>
+      <h1 class="page-title">Técnicos</h1>
+      <p class="page-subtitle">
+        Mantenha a equipe disponível para atribuição e acompanhe a carga de chamados críticos.
+      </p>
+    </div>
+    <span class="page-hero__meta">Limite Alta: 2 abertos por técnico</span>
+  </header>
+
+  @if (successMessage()) {
+    <div class="alert alert--success" role="status">{{ successMessage() }}</div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <div class="technician-layout">
+    <article class="panel">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Novo técnico</h2>
+          <p class="section-subtitle">Cadastre quem poderá receber os chamados.</p>
+        </div>
+      </div>
+
+      <form class="form-stack" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="field">
+          <label for="technician-name">Nome</label>
+          <input
+            id="technician-name"
+            type="text"
+            formControlName="name"
+            maxlength="120"
+            placeholder="Ex.: Ana Martins"
+            autocomplete="name"
+          />
+          @if (form.controls.name.invalid && form.controls.name.touched) {
+            <small class="field-error">Informe um nome entre 2 e 120 caracteres.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="technician-email">E-mail</label>
+          <input
+            id="technician-email"
+            type="email"
+            formControlName="email"
+            maxlength="254"
+            placeholder="ana@industria.com.br"
+            autocomplete="email"
+          />
+          @if (form.controls.email.invalid && form.controls.email.touched) {
+            <small class="field-error">Informe um e-mail válido.</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="technician-specialty">Especialidade</label>
+          <input
+            id="technician-specialty"
+            type="text"
+            formControlName="specialty"
+            maxlength="120"
+            placeholder="Ex.: Mecânica hidráulica"
+            autocomplete="off"
+          />
+        </div>
+
+        <button class="button button--primary" type="submit" [disabled]="isSaving()">
+          {{ isSaving() ? 'Cadastrando...' : 'Cadastrar técnico' }}
+        </button>
+      </form>
+    </article>
+
+    <article class="panel panel--wide">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Equipe cadastrada</h2>
+          <p class="section-subtitle">
+            A carga Alta é informativa; a validação definitiva acontece ao atribuir o chamado.
+          </p>
+        </div>
+        <span class="section-meta">{{ technicians().length }} técnicos</span>
+      </div>
+
+      @if (isLoading()) {
+        <div class="loading-state" role="status">Carregando técnicos...</div>
+      } @else if (technicians().length === 0) {
+        <div class="empty-state">
+          <strong>Nenhum técnico cadastrado</strong>
+          <p>Cadastre a equipe para começar a distribuir os chamados.</p>
+        </div>
+      } @else {
+        <div class="table-shell">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Técnico</th>
+                <th scope="col">Especialidade</th>
+                <th scope="col">Carga Alta</th>
+                <th scope="col">Cadastro</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (technician of technicians(); track technician.id) {
+                <tr>
+                  <td>
+                    <strong>{{ technician.name }}</strong>
+                    <small class="table-note">{{ technician.email }}</small>
+                  </td>
+                  <td>{{ technician.specialty || 'Generalista' }}</td>
+                  <td>
+                    <span class="capacity-pill" [class]="capacityClass(technician)">
+                      {{ technician.highUrgencyOpenRequests }}/2 abertos
+                    </span>
+                  </td>
+                  <td>{{ technician.createdAt | date: 'dd/MM/yyyy' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </article>
+  </div>
+</section>

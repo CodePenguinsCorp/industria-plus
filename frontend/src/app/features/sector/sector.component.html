@@ -1,0 +1,107 @@
+<section class="page-stack">
+  <header class="page-hero">
+    <div class="page-hero__copy">
+      <span class="page-eyebrow">Parque fabril</span>
+      <h1 class="page-title">Setores</h1>
+      <p class="page-subtitle">
+        Organize as áreas da fábrica para localizar equipamentos e chamados com rapidez.
+      </p>
+    </div>
+    <span class="page-hero__meta">{{ sectors().length }} cadastrados</span>
+  </header>
+
+  @if (successMessage()) {
+    <div class="alert alert--success" role="status">{{ successMessage() }}</div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <div class="sector-layout">
+    <article class="panel">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Novo setor</h2>
+          <p class="section-subtitle">Cadastre uma área operacional da fábrica.</p>
+        </div>
+      </div>
+
+      <form class="form-stack" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="field">
+          <label for="sector-name">Nome</label>
+          <input
+            id="sector-name"
+            type="text"
+            formControlName="name"
+            maxlength="100"
+            placeholder="Ex.: Linha de montagem"
+            autocomplete="off"
+            [attr.aria-invalid]="form.controls.name.invalid && form.controls.name.touched"
+          />
+          @if (form.controls.name.invalid && form.controls.name.touched) {
+            <small class="field-error">Informe um nome entre 2 e 100 caracteres.</small>
+          }
+        </div>
+
+        <div class="field">
+          <div class="field-meta">
+            <label for="sector-description">Descrição</label>
+            <span>{{ descriptionLength }}/255</span>
+          </div>
+          <textarea
+            id="sector-description"
+            formControlName="description"
+            maxlength="255"
+            rows="5"
+            placeholder="Informe a função ou localização desta área."
+          ></textarea>
+        </div>
+
+        <button class="button button--primary" type="submit" [disabled]="isSaving()">
+          {{ isSaving() ? 'Cadastrando...' : 'Cadastrar setor' }}
+        </button>
+      </form>
+    </article>
+
+    <article class="panel panel--wide">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Setores cadastrados</h2>
+          <p class="section-subtitle">Áreas disponíveis para vincular aos equipamentos.</p>
+        </div>
+      </div>
+
+      @if (isLoading()) {
+        <div class="loading-state" role="status">Carregando setores...</div>
+      } @else if (sectors().length === 0) {
+        <div class="empty-state">
+          <strong>Nenhum setor cadastrado</strong>
+          <p>Use o formulário ao lado para criar a primeira área da fábrica.</p>
+        </div>
+      } @else {
+        <div class="table-shell">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Nome</th>
+                <th scope="col">Descrição</th>
+                <th scope="col">Cadastro</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (sector of sectors(); track sector.id) {
+                <tr>
+                  <td>
+                    <strong>{{ sector.name }}</strong>
+                  </td>
+                  <td class="description-cell">{{ sector.description || 'Sem descrição' }}</td>
+                  <td>{{ sector.createdAt | date: 'dd/MM/yyyy' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </article>
+  </div>
+</section>

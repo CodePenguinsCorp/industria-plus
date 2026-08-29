@@ -1,0 +1,326 @@
+<section class="page-stack">
+  <header class="page-hero">
+    <div class="page-hero__copy">
+      <span class="page-eyebrow">Central de manutenção</span>
+      <h1 class="page-title">Chamados</h1>
+      <p class="page-subtitle">
+        Abra, priorize e distribua atendimentos com uma visão clara do impacto operacional.
+      </p>
+    </div>
+    <div class="hero-metrics" aria-label="Resumo dos chamados exibidos">
+      <span
+        ><strong>{{ openCount() }}</strong> abertos</span
+      >
+      <span class="hero-metrics__critical"
+        ><strong>{{ highOpenCount() }}</strong> alta</span
+      >
+      <span
+        ><strong>{{ unassignedCount() }}</strong> sem técnico</span
+      >
+    </div>
+  </header>
+
+  @if (successMessage()) {
+    <div class="alert alert--success" role="status">{{ successMessage() }}</div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <div class="request-layout">
+    <article class="panel request-form-panel">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Abrir chamado</h2>
+          <p class="section-subtitle">Descreva o problema e indique a urgência real.</p>
+        </div>
+      </div>
+
+      @if (!isLoading() && equipments().length === 0) {
+        <div class="empty-state empty-state--compact">
+          <strong>Cadastre um equipamento primeiro</strong>
+          <p>O chamado precisa estar vinculado a um ativo do parque fabril.</p>
+          <a class="button button--secondary button--small" routerLink="/equipamentos">
+            Ir para equipamentos
+          </a>
+        </div>
+      } @else {
+        <form class="form-stack" [formGroup]="createForm" (ngSubmit)="submitRequest()" novalidate>
+          <div class="field">
+            <label for="request-title">Título</label>
+            <input
+              id="request-title"
+              type="text"
+              formControlName="title"
+              maxlength="160"
+              placeholder="Ex.: Prensa com perda de pressão"
+              autocomplete="off"
+            />
+            @if (createForm.controls.title.invalid && createForm.controls.title.touched) {
+              <small class="field-error">Informe um título entre 3 e 160 caracteres.</small>
+            }
+          </div>
+
+          <div class="form-grid form-grid--two">
+            <div class="field">
+              <label for="request-sector">Setor</label>
+              <select id="request-sector" formControlName="sectorId">
+                <option [ngValue]="0" disabled>Selecione</option>
+                @for (sector of sectors(); track sector.id) {
+                  <option [ngValue]="sector.id">{{ sector.name }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="request-equipment">Equipamento</label>
+              <select id="request-equipment" formControlName="equipmentId">
+                <option [ngValue]="0" disabled>Selecione</option>
+                @for (equipment of availableEquipments; track equipment.id) {
+                  <option [ngValue]="equipment.id">
+                    {{ equipment.assetTag }} — {{ equipment.name }}
+                  </option>
+                }
+              </select>
+              @if (createForm.controls.sectorId.value > 0 && availableEquipments.length === 0) {
+                <small class="field-hint">Não há equipamentos cadastrados neste setor.</small>
+              }
+            </div>
+          </div>
+
+          <div class="form-grid form-grid--two">
+            <div class="field">
+              <label for="request-type">Tipo</label>
+              <select id="request-type" formControlName="type">
+                @for (option of typeOptions; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="request-urgency">Urgência</label>
+              <select id="request-urgency" formControlName="urgency">
+                @for (option of urgencyOptions; track option.value) {
+                  <option [value]="option.value">{{ option.label }}</option>
+                }
+              </select>
+              <small class="field-hint">Use Alta somente quando houver impacto imediato.</small>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-meta">
+              <label for="request-description">Descrição</label>
+              <span>{{ descriptionLength }}/2000</span>
+            </div>
+            <textarea
+              id="request-description"
+              formControlName="description"
+              minlength="10"
+              maxlength="2000"
+              rows="6"
+              placeholder="Explique sintomas, impacto e condições observadas."
+            ></textarea>
+            @if (
+              createForm.controls.description.invalid && createForm.controls.description.touched
+            ) {
+              <small class="field-error">Use entre 10 e 2000 caracteres.</small>
+            }
+          </div>
+
+          <button class="button button--primary" type="submit" [disabled]="isSaving()">
+            {{ isSaving() ? 'Abrindo chamado...' : 'Abrir chamado' }}
+          </button>
+        </form>
+      }
+    </article>
+
+    <article class="panel request-list-panel">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Fila de atendimento</h2>
+          <p class="section-subtitle">A ordenação operacional é definida pelo backend.</p>
+        </div>
+        <span class="section-meta">{{ requests().length }} resultados</span>
+      </div>
+
+      <form class="filter-bar" [formGroup]="filterForm" (ngSubmit)="applyFilters()">
+        <div class="field">
+          <label for="filter-status">Status</label>
+          <select id="filter-status" formControlName="status">
+            @for (option of statusFilterOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="filter-urgency">Urgência</label>
+          <select id="filter-urgency" formControlName="urgency">
+            @for (option of urgencyFilterOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
+        <button class="button button--secondary button--small" type="submit">Filtrar</button>
+        <button class="button button--ghost button--small" type="button" (click)="clearFilters()">
+          Limpar
+        </button>
+      </form>
+
+      @if (isLoading() || isListLoading()) {
+        <div class="loading-state" role="status">Carregando chamados...</div>
+      } @else if (requests().length === 0) {
+        <div class="empty-state">
+          <strong>Nenhum chamado encontrado</strong>
+          <p>Abra um novo chamado ou ajuste os filtros da fila.</p>
+        </div>
+      } @else {
+        <div class="request-list">
+          @for (request of requests(); track request.id) {
+            <article class="request-card" [class.request-card--high]="request.urgency === 'HIGH'">
+              <div class="request-card__head">
+                <div>
+                  <span class="request-number">Chamado #{{ request.id }}</span>
+                  <h3>{{ request.title }}</h3>
+                </div>
+                <div class="request-card__badges">
+                  <span class="pill" [class]="'urgency--' + request.urgency.toLowerCase()">
+                    {{ urgencyLabel(request.urgency) }}
+                  </span>
+                  <span class="pill" [class]="'status--' + request.status.toLowerCase()">
+                    {{ statusLabel(request.status) }}
+                  </span>
+                </div>
+              </div>
+
+              <p class="request-description">{{ request.description }}</p>
+
+              <dl class="request-meta">
+                <div>
+                  <dt>Equipamento</dt>
+                  <dd>{{ request.equipmentName }}</dd>
+                </div>
+                <div>
+                  <dt>Setor</dt>
+                  <dd>{{ request.sectorName }}</dd>
+                </div>
+                <div>
+                  <dt>Tipo</dt>
+                  <dd>{{ typeLabel(request.type) }}</dd>
+                </div>
+                <div>
+                  <dt>Aberto em</dt>
+                  <dd>{{ request.createdAt | date: 'dd/MM/yyyy HH:mm' }}</dd>
+                </div>
+              </dl>
+
+              <div class="request-card__footer">
+                <div class="assignee">
+                  <span>Técnico responsável</span>
+                  <strong>{{ request.technicianName || 'Não atribuído' }}</strong>
+                </div>
+                @if (request.status !== 'CLOSED') {
+                  <div class="action-row">
+                    <button
+                      class="button button--ghost button--small"
+                      type="button"
+                      [disabled]="actionRequestId() !== null"
+                      (click)="openAssignment(request)"
+                    >
+                      {{ request.technicianId ? 'Reatribuir' : 'Atribuir técnico' }}
+                    </button>
+                    @if (request.status === 'OPEN') {
+                      <button
+                        class="button button--secondary button--small"
+                        type="button"
+                        [disabled]="actionRequestId() !== null"
+                        (click)="changeStatus(request, 'IN_PROGRESS')"
+                      >
+                        {{ actionRequestId() === request.id ? 'Atualizando...' : 'Iniciar' }}
+                      </button>
+                      <button
+                        class="button button--primary button--small"
+                        type="button"
+                        [disabled]="actionRequestId() !== null"
+                        (click)="changeStatus(request, 'CLOSED')"
+                      >
+                        {{ actionRequestId() === request.id ? 'Encerrando...' : 'Encerrar' }}
+                      </button>
+                    } @else if (request.status === 'IN_PROGRESS') {
+                      <button
+                        class="button button--primary button--small"
+                        type="button"
+                        [disabled]="actionRequestId() !== null"
+                        (click)="changeStatus(request, 'CLOSED')"
+                      >
+                        {{ actionRequestId() === request.id ? 'Encerrando...' : 'Encerrar' }}
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+
+              @if (assignmentRequestId() === request.id) {
+                <form
+                  class="assignment-panel"
+                  [formGroup]="assignmentForm"
+                  (ngSubmit)="assignTechnician()"
+                >
+                  <div class="field">
+                    <label [for]="'assignment-technician-' + request.id">Técnico</label>
+                    <select
+                      [id]="'assignment-technician-' + request.id"
+                      formControlName="technicianId"
+                    >
+                      <option [ngValue]="0" disabled>Selecione um técnico</option>
+                      @for (technician of technicians(); track technician.id) {
+                        <option [ngValue]="technician.id">
+                          {{ technicianOptionLabel(technician) }}
+                        </option>
+                      }
+                    </select>
+                  </div>
+
+                  @if (assignmentCapacityWarning) {
+                    <p class="capacity-warning" role="note">{{ assignmentCapacityWarning }}</p>
+                  }
+                  @if (actionErrorMessage()) {
+                    <div class="alert alert--error alert--compact" role="alert">
+                      {{ actionErrorMessage() }}
+                    </div>
+                  }
+                  @if (technicians().length === 0) {
+                    <p class="field-hint">
+                      Não há técnicos cadastrados. <a routerLink="/tecnicos">Cadastrar técnico</a>
+                    </p>
+                  }
+
+                  <div class="action-row">
+                    <button
+                      class="button button--primary button--small"
+                      type="submit"
+                      [disabled]="actionRequestId() !== null || technicians().length === 0"
+                    >
+                      {{
+                        actionRequestId() === request.id ? 'Atribuindo...' : 'Confirmar atribuição'
+                      }}
+                    </button>
+                    <button
+                      class="button button--ghost button--small"
+                      type="button"
+                      [disabled]="actionRequestId() !== null"
+                      (click)="closeAssignment()"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              }
+            </article>
+          }
+        </div>
+      }
+    </article>
+  </div>
+</section>

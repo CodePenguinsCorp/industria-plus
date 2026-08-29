@@ -1,0 +1,18 @@
+.sector-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.75fr) minmax(0, 1.4fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.description-cell {
+  min-width: 220px;
+  max-width: 440px;
+  color: var(--text-soft);
+}
+
+@media (max-width: 900px) {
+  .sector-layout {
+    grid-template-columns: 1fr;
+  }
+}

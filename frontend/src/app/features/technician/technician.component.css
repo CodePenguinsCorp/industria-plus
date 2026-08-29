@@ -1,0 +1,12 @@
+.technician-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.78fr) minmax(0, 1.45fr);
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 940px) {
+  .technician-layout {
+    grid-template-columns: 1fr;
+  }
+}

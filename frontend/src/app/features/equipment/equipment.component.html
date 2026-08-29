@@ -1,0 +1,153 @@
+<section class="page-stack">
+  <header class="page-hero">
+    <div class="page-hero__copy">
+      <span class="page-eyebrow">Ativos industriais</span>
+      <h1 class="page-title">Equipamentos</h1>
+      <p class="page-subtitle">
+        Identifique cada máquina e mantenha seu vínculo com o setor responsável.
+      </p>
+    </div>
+    <span class="page-hero__meta">{{ equipments().length }} no parque fabril</span>
+  </header>
+
+  @if (successMessage()) {
+    <div class="alert alert--success" role="status">{{ successMessage() }}</div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
+  }
+
+  <div class="equipment-layout">
+    <article class="panel">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Novo equipamento</h2>
+          <p class="section-subtitle">Cadastre o ativo antes de abrir chamados para ele.</p>
+        </div>
+      </div>
+
+      @if (!isLoading() && sectors().length === 0) {
+        <div class="empty-state empty-state--compact">
+          <strong>Cadastre um setor primeiro</strong>
+          <p>Todo equipamento precisa estar vinculado a uma área da fábrica.</p>
+          <a class="button button--secondary button--small" routerLink="/setores"
+            >Ir para setores</a
+          >
+        </div>
+      } @else {
+        <form class="form-stack" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="form-grid form-grid--two">
+            <div class="field">
+              <label for="equipment-asset-tag">Patrimônio</label>
+              <input
+                id="equipment-asset-tag"
+                type="text"
+                formControlName="assetTag"
+                maxlength="50"
+                placeholder="Ex.: PR-042"
+                autocomplete="off"
+              />
+              @if (form.controls.assetTag.invalid && form.controls.assetTag.touched) {
+                <small class="field-error">Informe um código entre 2 e 50 caracteres.</small>
+              }
+            </div>
+
+            <div class="field">
+              <label for="equipment-sector">Setor</label>
+              <select id="equipment-sector" formControlName="sectorId">
+                <option [ngValue]="0" disabled>Selecione um setor</option>
+                @for (sector of sectors(); track sector.id) {
+                  <option [ngValue]="sector.id">{{ sector.name }}</option>
+                }
+              </select>
+              @if (form.controls.sectorId.invalid && form.controls.sectorId.touched) {
+                <small class="field-error">Selecione o setor do equipamento.</small>
+              }
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="equipment-name">Nome do equipamento</label>
+            <input
+              id="equipment-name"
+              type="text"
+              formControlName="name"
+              maxlength="120"
+              placeholder="Ex.: Prensa hidráulica 02"
+              autocomplete="off"
+            />
+            @if (form.controls.name.invalid && form.controls.name.touched) {
+              <small class="field-error">Informe um nome entre 2 e 120 caracteres.</small>
+            }
+          </div>
+
+          <div class="field">
+            <div class="field-meta">
+              <label for="equipment-description">Descrição</label>
+              <span>{{ descriptionLength }}/500</span>
+            </div>
+            <textarea
+              id="equipment-description"
+              formControlName="description"
+              maxlength="500"
+              rows="4"
+              placeholder="Modelo, localização ou informação útil para a manutenção."
+            ></textarea>
+          </div>
+
+          <button class="button button--primary" type="submit" [disabled]="isSaving()">
+            {{ isSaving() ? 'Cadastrando...' : 'Cadastrar equipamento' }}
+          </button>
+        </form>
+      }
+    </article>
+
+    <article class="panel panel--wide">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Parque fabril</h2>
+          <p class="section-subtitle">Equipamentos disponíveis para abertura de chamados.</p>
+        </div>
+      </div>
+
+      @if (isLoading()) {
+        <div class="loading-state" role="status">Carregando equipamentos...</div>
+      } @else if (equipments().length === 0) {
+        <div class="empty-state">
+          <strong>Nenhum equipamento cadastrado</strong>
+          <p>Depois do primeiro cadastro, os ativos aparecerão nesta lista.</p>
+        </div>
+      } @else {
+        <div class="table-shell">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Patrimônio</th>
+                <th scope="col">Equipamento</th>
+                <th scope="col">Setor</th>
+                <th scope="col">Cadastro</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (equipment of equipments(); track equipment.id) {
+                <tr>
+                  <td>
+                    <span class="code-chip">{{ equipment.assetTag }}</span>
+                  </td>
+                  <td>
+                    <strong>{{ equipment.name }}</strong>
+                    @if (equipment.description) {
+                      <small class="table-note">{{ equipment.description }}</small>
+                    }
+                  </td>
+                  <td>{{ equipment.sectorName }}</td>
+                  <td>{{ equipment.createdAt | date: 'dd/MM/yyyy' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </article>
+  </div>
+</section>

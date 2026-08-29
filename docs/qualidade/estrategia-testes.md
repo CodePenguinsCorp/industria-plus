@@ -23,8 +23,8 @@ abertura, priorizacao, atribuicao e encerramento de chamados.
 
 ## Roteiro manual obrigatorio
 
-1. Cadastrar um equipamento.
-2. Cadastrar um setor.
+1. Cadastrar um setor.
+2. Cadastrar um equipamento vinculado ao setor.
 3. Abrir um chamado para o equipamento e o setor cadastrados.
 4. Definir a urgencia do chamado como `Alta`.
 5. Atribuir o chamado a um tecnico.
@@ -33,10 +33,14 @@ abertura, priorizacao, atribuicao e encerramento de chamados.
 8. Confirmar que o sistema recusa a terceira atribuicao com uma mensagem clara.
 9. Encerrar um dos chamados de urgencia alta.
 10. Confirmar que o tecnico pode receber outro chamado de urgencia alta.
+11. Disparar duas atribuicoes concorrentes para um tecnico que ja possui um chamado de urgencia
+    alta aberto.
+12. Confirmar que somente uma atribuicao e aceita, a outra retorna `409` com
+    `HIGH_URGENCY_LIMIT` e a contagem persistida permanece em dois.
 
 ## Gate minimo por pull request
 
-1. `npm run format` e `npm run build` no frontend.
+1. `npm run format`, `npm test` e `npm run build` no frontend.
 2. `mvn test` no backend.
 3. Testes novos ou atualizados para toda mudanca de comportamento.
 4. Evidencia do fluxo principal validado quando houver alteracao visual.
