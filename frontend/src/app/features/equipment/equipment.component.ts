@@ -12,6 +12,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize, forkJoin } from 'rxjs';
 import { Equipment, EquipmentPayload, Sector } from '../../core/models';
+import { matchesSearch } from '../../core/search';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { EquipmentService } from '../../core/services/equipment.service';
 import { SectorService } from '../../core/services/sector.service';
@@ -36,6 +37,7 @@ export class EquipmentComponent implements OnInit {
     sectorId: [0, [Validators.required, Validators.min(1)]],
     description: ['', [Validators.maxLength(500)]],
   });
+  protected readonly searchControl = this.formBuilder.nonNullable.control('');
 
   protected readonly equipments = signal<Equipment[]>([]);
   protected readonly sectors = signal<Sector[]>([]);
@@ -88,6 +90,20 @@ export class EquipmentComponent implements OnInit {
 
   protected get descriptionLength(): number {
     return this.form.controls.description.value.length;
+  }
+
+  protected get filteredEquipments(): Equipment[] {
+    const query = this.searchControl.value.trim();
+    if (!query) {
+      return this.equipments();
+    }
+
+    return this.equipments().filter((equipment) =>
+      matchesSearch(
+        `${equipment.assetTag} ${equipment.name} ${equipment.sectorName} ${equipment.description ?? ''}`,
+        query,
+      ),
+    );
   }
 
   private loadData(): void {

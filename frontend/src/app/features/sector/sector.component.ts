@@ -11,6 +11,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { Sector, SectorPayload } from '../../core/models';
+import { matchesSearch } from '../../core/search';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { SectorService } from '../../core/services/sector.service';
 
@@ -31,6 +32,7 @@ export class SectorComponent implements OnInit {
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(100)]],
     description: ['', [Validators.maxLength(255)]],
   });
+  protected readonly searchControl = this.formBuilder.nonNullable.control('');
 
   protected readonly sectors = signal<Sector[]>([]);
   protected readonly isLoading = signal(true);
@@ -80,6 +82,17 @@ export class SectorComponent implements OnInit {
 
   protected get descriptionLength(): number {
     return this.form.controls.description.value.length;
+  }
+
+  protected get filteredSectors(): Sector[] {
+    const query = this.searchControl.value.trim();
+    if (!query) {
+      return this.sectors();
+    }
+
+    return this.sectors().filter((sector) =>
+      matchesSearch(`${sector.name} ${sector.description ?? ''}`, query),
+    );
   }
 
   private loadSectors(): void {

@@ -69,6 +69,16 @@
           <h2 class="section-title">Setores cadastrados</h2>
           <p class="section-subtitle">Áreas disponíveis para vincular aos equipamentos.</p>
         </div>
+        <label class="catalog-search">
+          <span class="visually-hidden">Buscar setor</span>
+          <span aria-hidden="true">⌕</span>
+          <input
+            type="search"
+            [formControl]="searchControl"
+            placeholder="Buscar setor..."
+            autocomplete="off"
+          />
+        </label>
       </div>
 
       @if (isLoading()) {
@@ -77,6 +87,11 @@
         <div class="empty-state">
           <strong>Nenhum setor cadastrado</strong>
           <p>Use o formulário ao lado para criar a primeira área da fábrica.</p>
+        </div>
+      } @else if (filteredSectors.length === 0) {
+        <div class="empty-state empty-state--compact">
+          <strong>Nenhum setor corresponde à busca</strong>
+          <p>Tente outro nome ou limpe o campo de pesquisa.</p>
         </div>
       } @else {
         <div class="table-shell">
@@ -89,7 +104,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (sector of sectors(); track sector.id) {
+              @for (sector of filteredSectors; track sector.id) {
                 <tr>
                   <td>
                     <strong>{{ sector.name }}</strong>

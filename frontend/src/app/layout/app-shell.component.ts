@@ -5,17 +5,35 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   selector: 'app-shell',
   imports: [RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './app-shell.component.html',
-  styleUrl: './app-shell.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppShellComponent {
   protected readonly title = 'Industria Plus';
+  protected readonly currentYear = new Date().getFullYear();
 
   protected readonly navigation = [
-    { label: 'Visão geral', route: '/', exact: true },
-    { label: 'Chamados', route: '/chamados', exact: false },
-    { label: 'Equipamentos', route: '/equipamentos', exact: false },
-    { label: 'Setores', route: '/setores', exact: false },
-    { label: 'Técnicos', route: '/tecnicos', exact: false },
+    { label: 'Visão geral', shortLabel: 'Início', icon: 'dashboard', route: '/', exact: true },
+    {
+      label: 'Chamados',
+      shortLabel: 'Chamados',
+      icon: 'requests',
+      route: '/chamados',
+      exact: false,
+    },
+    {
+      label: 'Equipamentos',
+      shortLabel: 'Ativos',
+      icon: 'equipment',
+      route: '/equipamentos',
+      exact: false,
+    },
+    { label: 'Setores', shortLabel: 'Setores', icon: 'sectors', route: '/setores', exact: false },
+    {
+      label: 'Técnicos',
+      shortLabel: 'Equipe',
+      icon: 'technicians',
+      route: '/tecnicos',
+      exact: false,
+    },
   ];
 }

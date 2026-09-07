@@ -13,13 +13,13 @@ describe('SectorComponent', () => {
   };
 
   const sectorService = {
-    list: vi.fn(() => of([])),
+    list: vi.fn(() => of<Sector[]>([])),
     create: vi.fn(() => of(createdSector)),
   };
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    sectorService.list.mockReturnValue(of([]));
+    sectorService.list.mockReturnValue(of<Sector[]>([]));
     sectorService.create.mockReturnValue(of(createdSector));
 
     await TestBed.configureTestingModule({
@@ -52,5 +52,22 @@ describe('SectorComponent', () => {
       description: 'Linha principal',
     });
     expect(component.sectors()).toEqual([createdSector]);
+  });
+
+  it('filters sectors without requiring accents in the search', () => {
+    const assemblySector: Sector = {
+      id: 2,
+      name: 'Montagem',
+      description: 'Área de integração final',
+      createdAt: '2026-08-28T11:00:00',
+    };
+    sectorService.list.mockReturnValue(of([createdSector, assemblySector]));
+    const fixture = TestBed.createComponent(SectorComponent);
+    const component = fixture.componentInstance as any;
+    fixture.detectChanges();
+
+    component.searchControl.setValue('area integracao');
+
+    expect(component.filteredSectors).toEqual([assemblySector]);
   });
 });

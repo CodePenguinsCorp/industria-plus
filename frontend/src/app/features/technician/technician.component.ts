@@ -11,6 +11,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { Technician, TechnicianPayload } from '../../core/models';
+import { matchesSearch } from '../../core/search';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { TechnicianService } from '../../core/services/technician.service';
 
@@ -32,6 +33,7 @@ export class TechnicianComponent implements OnInit {
     email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
     specialty: ['', [Validators.maxLength(120)]],
   });
+  protected readonly searchControl = this.formBuilder.nonNullable.control('');
 
   protected readonly technicians = signal<Technician[]>([]);
   protected readonly isLoading = signal(true);
@@ -88,6 +90,17 @@ export class TechnicianComponent implements OnInit {
     return technician.highUrgencyOpenRequests === 1
       ? 'capacity-pill--attention'
       : 'capacity-pill--available';
+  }
+
+  protected get filteredTechnicians(): Technician[] {
+    const query = this.searchControl.value.trim();
+    if (!query) {
+      return this.technicians();
+    }
+
+    return this.technicians().filter((technician) =>
+      matchesSearch(`${technician.name} ${technician.email} ${technician.specialty ?? ''}`, query),
+    );
   }
 
   private loadTechnicians(): void {

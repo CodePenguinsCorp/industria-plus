@@ -108,6 +108,16 @@
           <h2 class="section-title">Parque fabril</h2>
           <p class="section-subtitle">Equipamentos disponíveis para abertura de chamados.</p>
         </div>
+        <label class="catalog-search">
+          <span class="visually-hidden">Buscar equipamento</span>
+          <span aria-hidden="true">⌕</span>
+          <input
+            type="search"
+            [formControl]="searchControl"
+            placeholder="Buscar ativo..."
+            autocomplete="off"
+          />
+        </label>
       </div>
 
       @if (isLoading()) {
@@ -116,6 +126,11 @@
         <div class="empty-state">
           <strong>Nenhum equipamento cadastrado</strong>
           <p>Depois do primeiro cadastro, os ativos aparecerão nesta lista.</p>
+        </div>
+      } @else if (filteredEquipments.length === 0) {
+        <div class="empty-state empty-state--compact">
+          <strong>Nenhum equipamento corresponde à busca</strong>
+          <p>Pesquise por patrimônio, equipamento ou setor.</p>
         </div>
       } @else {
         <div class="table-shell">
@@ -129,7 +144,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (equipment of equipments(); track equipment.id) {
+              @for (equipment of filteredEquipments; track equipment.id) {
                 <tr>
                   <td>
                     <span class="code-chip">{{ equipment.assetTag }}</span>

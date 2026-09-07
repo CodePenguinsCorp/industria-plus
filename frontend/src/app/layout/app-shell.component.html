@@ -1,27 +1,62 @@
-<div class="shell">
-  <header class="shell__header">
-    <a class="shell__brand" routerLink="/" aria-label="Industria Plus — início">
-      <span class="shell__brand-mark" aria-hidden="true">IP</span>
-      <span>
-        <strong>{{ title }}</strong>
-        <small>Manutenção industrial</small>
-      </span>
+<div class="app-frame">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/" aria-label="Industria Plus - início">
+      <strong>{{ title }}</strong>
     </a>
 
-    <nav class="shell__nav" aria-label="Navegação principal">
+    <nav class="sidebar__nav" aria-label="Navegação principal">
       @for (item of navigation; track item.route) {
         <a
           [routerLink]="item.route"
           routerLinkActive="is-active"
           [routerLinkActiveOptions]="{ exact: item.exact }"
         >
-          {{ item.label }}
+          <span class="nav-icon" aria-hidden="true">
+            @switch (item.icon) {
+              @case ('dashboard') {
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z" />
+                </svg>
+              }
+              @case ('requests') {
+                <svg viewBox="0 0 24 24">
+                  <path d="M7 3h10v3h3v15H4V6h3V3Zm2 3h6V5H9v1Zm-1 5h8m-8 4h6" />
+                </svg>
+              }
+              @case ('equipment') {
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 7h16v11H4V7Zm3 11v3m10-3v3M8 11h3m5 0h1m-1 3h1M7 4h10v3" />
+                </svg>
+              }
+              @case ('sectors') {
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 20V9l5 3V8l5 3V4h6v16H4Zm3-4h2m3 0h2m3 0h1" />
+                </svg>
+              }
+              @default {
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-1a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2 21v-3a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v3H2Zm13-8h1a5 5 0 0 1 5 5v3h-4"
+                  />
+                </svg>
+              }
+            }
+          </span>
+          <span class="nav-label">{{ item.label }}</span>
+          <span class="nav-label nav-label--short">{{ item.shortLabel }}</span>
+          <span class="nav-arrow" aria-hidden="true">›</span>
         </a>
       }
     </nav>
-  </header>
 
-  <main class="shell__content">
-    <router-outlet />
-  </main>
+    <div class="sidebar__footer">
+      <small class="copyright">CodePenguins · {{ currentYear }}</small>
+    </div>
+  </aside>
+
+  <div class="workspace">
+    <main class="workspace__content">
+      <router-outlet />
+    </main>
+  </div>
 </div>

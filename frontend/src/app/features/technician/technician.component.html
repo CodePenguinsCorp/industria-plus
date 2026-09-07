@@ -83,7 +83,16 @@
             A carga Alta é informativa; a validação definitiva acontece ao atribuir o chamado.
           </p>
         </div>
-        <span class="section-meta">{{ technicians().length }} técnicos</span>
+        <label class="catalog-search">
+          <span class="visually-hidden">Buscar técnico</span>
+          <span aria-hidden="true">⌕</span>
+          <input
+            type="search"
+            [formControl]="searchControl"
+            placeholder="Buscar técnico..."
+            autocomplete="off"
+          />
+        </label>
       </div>
 
       @if (isLoading()) {
@@ -92,6 +101,11 @@
         <div class="empty-state">
           <strong>Nenhum técnico cadastrado</strong>
           <p>Cadastre a equipe para começar a distribuir os chamados.</p>
+        </div>
+      } @else if (filteredTechnicians.length === 0) {
+        <div class="empty-state empty-state--compact">
+          <strong>Nenhum técnico corresponde à busca</strong>
+          <p>Pesquise por nome, e-mail ou especialidade.</p>
         </div>
       } @else {
         <div class="table-shell">
@@ -105,7 +119,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (technician of technicians(); track technician.id) {
+              @for (technician of filteredTechnicians; track technician.id) {
                 <tr>
                   <td>
                     <strong>{{ technician.name }}</strong>

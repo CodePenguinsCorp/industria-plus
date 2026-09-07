@@ -11,17 +11,9 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { finalize, forkJoin } from 'rxjs';
-import {
-  Equipment,
-  HealthStatus,
-  MaintenanceRequest,
-  Sector,
-  Technician,
-  Urgency,
-} from '../../core/models';
+import { Equipment, MaintenanceRequest, Sector, Technician, Urgency } from '../../core/models';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { EquipmentService } from '../../core/services/equipment.service';
-import { HealthService } from '../../core/services/health.service';
 import { MaintenanceRequestService } from '../../core/services/maintenance-request.service';
 import { SectorService } from '../../core/services/sector.service';
 import { TechnicianService } from '../../core/services/technician.service';
@@ -30,7 +22,6 @@ import { TechnicianService } from '../../core/services/technician.service';
   selector: 'app-home',
   imports: [DatePipe, RouterLink],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
@@ -39,18 +30,15 @@ export class HomeComponent implements OnInit {
   private readonly sectorService = inject(SectorService);
   private readonly technicianService = inject(TechnicianService);
   private readonly requestService = inject(MaintenanceRequestService);
-  private readonly healthService = inject(HealthService);
   private readonly apiErrorService = inject(ApiErrorService);
 
   protected readonly equipments = signal<Equipment[]>([]);
   protected readonly sectors = signal<Sector[]>([]);
   protected readonly technicians = signal<Technician[]>([]);
   protected readonly requests = signal<MaintenanceRequest[]>([]);
-  protected readonly healthStatus = signal<HealthStatus | null>(null);
   protected readonly isLoading = signal(true);
-  protected readonly isHealthLoading = signal(true);
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly healthError = signal<string | null>(null);
+  protected readonly today = new Date();
 
   protected readonly openRequests = computed(() =>
     this.requests().filter((request) => request.status !== 'CLOSED'),
@@ -61,42 +49,18 @@ export class HomeComponent implements OnInit {
   protected readonly unassignedRequests = computed(() =>
     this.openRequests().filter((request) => request.technicianId === null),
   );
-  protected readonly priorityRequests = computed(() => this.openRequests().slice(0, 4));
-
-  protected readonly quickActions = [
-    {
-      title: 'Abrir chamado',
-      description: 'Registre uma manutenção preventiva ou corretiva.',
-      route: '/chamados',
-      tone: 'rust',
-    },
-    {
-      title: 'Cadastrar equipamento',
-      description: 'Inclua um novo ativo no parque fabril.',
-      route: '/equipamentos',
-      tone: 'mint',
-    },
-    {
-      title: 'Organizar setores',
-      description: 'Estruture as áreas operacionais da fábrica.',
-      route: '/setores',
-      tone: 'dark',
-    },
-    {
-      title: 'Gerenciar técnicos',
-      description: 'Consulte a equipe e a carga de urgência Alta.',
-      route: '/tecnicos',
-      tone: 'copper',
-    },
-  ];
+  protected readonly inProgressRequests = computed(() =>
+    this.openRequests().filter((request) => request.status === 'IN_PROGRESS'),
+  );
+  protected readonly priorityRequests = computed(() => this.openRequests().slice(0, 5));
+  protected readonly workloadTechnicians = computed(() =>
+    [...this.technicians()]
+      .sort((first, second) => second.highUrgencyOpenRequests - first.highUrgencyOpenRequests)
+      .slice(0, 4),
+  );
 
   ngOnInit(): void {
     this.loadDashboard();
-    this.loadHealthStatus();
-  }
-
-  protected reloadHealthStatus(): void {
-    this.loadHealthStatus();
   }
 
   protected urgencyLabel(urgency: Urgency): string {
@@ -108,6 +72,10 @@ export class HomeComponent implements OnInit {
       default:
         return 'Baixa';
     }
+  }
+
+  protected capacityPercent(technician: Technician): number {
+    return Math.min(100, (technician.highUrgencyOpenRequests / 2) * 100);
   }
 
   private loadDashboard(): void {
@@ -135,25 +103,6 @@ export class HomeComponent implements OnInit {
           this.errorMessage.set(
             this.apiErrorService.toMessage(error, 'Não foi possível carregar a visão operacional.'),
           );
-        },
-      });
-  }
-
-  private loadHealthStatus(): void {
-    this.isHealthLoading.set(true);
-    this.healthError.set(null);
-
-    this.healthService
-      .getStatus()
-      .pipe(
-        finalize(() => this.isHealthLoading.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (status) => this.healthStatus.set(status),
-        error: () => {
-          this.healthStatus.set(null);
-          this.healthError.set('API indisponível para verificação.');
         },
       });
   }
