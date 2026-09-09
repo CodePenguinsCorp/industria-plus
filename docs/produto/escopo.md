@@ -1,51 +1,51 @@
 # Escopo funcional
 
-## Visao do produto
+## Visão do produto
 
-O Industria Plus e um helpdesk de manutencao industrial para apoiar o controle das manutencoes
+O Industria Plus é um helpdesk de manutenção industrial para apoiar o controle das manutenções
 preventivas e corretivas do parque fabril. O sistema deve reduzir paradas sem tratamento e dar
-clareza sobre a urgencia dos chamados para a equipe tecnica.
+clareza sobre a urgência dos chamados para a equipe técnica.
 
 ## Entrega N1
 
-O primeiro nivel do produto contempla:
+O primeiro nível do produto contempla:
 
 - cadastro e consulta de equipamentos
 - cadastro e consulta de setores
 - abertura de chamados vinculados a um equipamento e setor
-- definicao do nivel de urgencia do chamado
-- consulta de chamados por status e urgencia
-- atribuicao de chamados a tecnicos
-- alteracao do status do chamado para permitir seu acompanhamento e encerramento
+- definição do nível de urgência do chamado
+- consulta de chamados por status e urgência
+- atribuição de chamados a técnicos
+- alteração do status do chamado para permitir seu acompanhamento e encerramento
 
-Cadastros, telas ou regras que nao contribuam diretamente para esses fluxos nao fazem parte do N1.
+Cadastros, telas ou regras que não contribuam diretamente para esses fluxos não fazem parte do N1.
 
-## Regra de negocio critica
+## Regra de negócio crítica
 
-`RN-001`: um tecnico nao pode ter mais de dois chamados com urgencia `Alta` abertos ao mesmo
+`RN-001`: um técnico não pode ter mais de dois chamados com urgência `Alta` abertos ao mesmo
 tempo.
 
-- A validacao deve ser executada no backend durante a atribuicao ou reatribuicao.
-- Chamados encerrados nao contam para o limite.
-- O terceiro chamado de urgencia alta deve ser recusado com uma mensagem de negocio clara.
-- A validacao deve considerar concorrencia para impedir duas atribuicoes simultaneas acima do limite.
-- O frontend deve orientar o usuario, mas nao substitui a validacao do backend.
+- A validação deve ser executada no backend durante a atribuição ou reatribuição.
+- Chamados encerrados não contam para o limite.
+- O terceiro chamado de urgência alta deve ser recusado com uma mensagem de negócio clara.
+- A validação deve considerar concorrência para impedir duas atribuições simultâneas acima do limite.
+- O frontend deve orientar o usuário, mas não substitui a validação do backend.
 
-## Cenarios de aceite da RN-001
+## Cenários de aceite da RN-001
 
-1. Um tecnico sem chamados de urgencia alta pode receber um chamado de urgencia alta.
-2. Um tecnico com um chamado de urgencia alta aberto pode receber o segundo.
-3. Um tecnico com dois chamados de urgencia alta abertos nao pode receber o terceiro.
-4. Depois que um dos chamados de urgencia alta for encerrado, o tecnico pode receber outro.
-5. Chamados de urgencia diferente de alta nao entram nessa contagem.
+1. Um técnico sem chamados de urgência alta pode receber um chamado de urgência alta.
+2. Um técnico com um chamado de urgência alta aberto pode receber o segundo.
+3. Um técnico com dois chamados de urgência alta abertos não pode receber o terceiro.
+4. Depois que um dos chamados de urgência alta for encerrado, o técnico pode receber outro.
+5. Chamados de urgência diferente de alta não entram nessa contagem.
 
-## Evolucao N2/N3
+## Evolução N2/N3
 
-As evolucoes previstas, fora do N1, sao:
+As evoluções previstas, fora do N1, são:
 
-- historico de troca de pecas por maquina
-- calculo de MTBF, o tempo medio entre falhas
-- agendamento automatico de manutencoes preventivas
+- histórico de troca de peças por máquina
+- cálculo de MTBF, o tempo médio entre falhas
+- agendamento automático de manutenções preventivas
 
 Esses itens devem passar novamente pelo Definition of Ready antes de entrarem em desenvolvimento.
 
@@ -54,12 +54,12 @@ Esses itens devem passar novamente pelo Definition of Ready antes de entrarem em
 Os pontos abaixo foram registrados inicialmente como pendências de refinamento e são preservados
 como histórico do levantamento:
 
-- dados obrigatorios de equipamentos, setores e tecnicos
-- niveis de urgencia permitidos alem de `Alta`
+- dados obrigatórios de equipamentos, setores e técnicos
+- níveis de urgência permitidos além de `Alta`
 - estados do ciclo de vida de um chamado
-- permissoes para abertura, atribuicao, reatribuicao e encerramento
-- criterio para diferenciar manutencao preventiva de corretiva
-- regras de inativacao de equipamentos, setores e tecnicos com historico associado
+- permissões para abertura, atribuição, reatribuição e encerramento
+- critério para diferenciar manutenção preventiva de corretiva
+- regras de inativação de equipamentos, setores e técnicos com histórico associado
 
 As decisões adotadas para a implementação e o aceite do N1 estão formalizadas no
 [refinamento funcional do N1](refinamento-n1.md). Esse refinamento complementa o escopo sem alterar

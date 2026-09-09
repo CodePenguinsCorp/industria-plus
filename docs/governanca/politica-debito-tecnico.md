@@ -1,44 +1,44 @@
-# Politica de gestao de debito tecnico
+# Política de gestão de débito técnico
 
-O DevOps e responsavel pelo acompanhamento da politica, com participacao dos desenvolvedores na
-identificacao, estimativa e correcao dos debitos.
+O DevOps é responsável pelo acompanhamento da política, com participação dos desenvolvedores na
+identificação, estimativa e correção dos débitos.
 
-## Registro obrigatorio
+## Registro obrigatório
 
-Todo atalho tecnico, codigo temporario, necessidade de refatoracao, melhoria estrutural ou pendencia
-deve ser registrado no backlog como `Debito Tecnico`. O registro deve conter:
+Todo atalho técnico, código temporário, necessidade de refatoração, melhoria estrutural ou pendência
+deve ser registrado no backlog como `Débito Técnico`. O registro deve conter:
 
-- descricao do problema
+- descrição do problema
 - parte do sistema afetada
-- motivo para a solucao definitiva nao ter sido aplicada
+- motivo para a solução definitiva não ter sido aplicada
 - impacto e risco para o projeto
 - prioridade
-- responsavel pela correcao
-- criterio de aceite para encerramento
+- responsável pela correção
+- critério de aceite para encerramento
 
-Comentarios no codigo e acordos verbais nao substituem o item no backlog. Um `TODO` consciente
-deve referenciar o identificador do debito registrado.
+Comentários no código e acordos verbais não substituem o item no backlog. Um `TODO` consciente
+deve referenciar o identificador do débito registrado.
 
-## Priorizacao
+## Priorização
 
-- `Alta`: afeta seguranca, regra de negocio, funcionamento, dados ou bloqueia outro integrante.
-- `Media`: dificulta manutencao, compreensao, testes ou evolucao do codigo.
-- `Baixa`: melhoria de organizacao, legibilidade ou desempenho sem impacto imediato.
+- `Alta`: afeta segurança, regra de negócio, funcionamento, dados ou bloqueia outro integrante.
+- `Média`: dificulta manutenção, compreensão, testes ou evolução do código.
+- `Baixa`: melhoria de organização, legibilidade ou desempenho sem impacto imediato.
 
-Qualquer debito que possa permitir mais de dois chamados de urgencia `Alta` abertos para o mesmo
-tecnico tem prioridade maxima.
+Qualquer débito que possa permitir mais de dois chamados de urgência `Alta` abertos para o mesmo
+técnico tem prioridade máxima.
 
 ## Capacidade e pagamento
 
-- A equipe reserva aproximadamente 15% do esforco de cada ciclo para debitos tecnicos.
-- Debitos de prioridade alta devem entrar no ciclo atual ou bloquear a entrega afetada.
-- Os demais debitos sao priorizados no refinamento conforme risco, impacto e custo de postergacao.
-- Correcao emergencial deve gerar uma tarefa de solucao definitiva no ciclo atual ou no seguinte.
+- A equipe reserva aproximadamente 15% do esforço de cada ciclo para débitos técnicos.
+- Débitos de prioridade alta devem entrar no ciclo atual ou bloquear a entrega afetada.
+- Os demais débitos são priorizados no refinamento conforme risco, impacto e custo de postergação.
+- Correção emergencial deve gerar uma tarefa de solução definitiva no ciclo atual ou no seguinte.
 
-## Criterios de encerramento
+## Critérios de encerramento
 
-- causa do debito removida
-- codigo revisado
+- causa do débito removida
+- código revisado
 - testes relacionados atualizados e aprovados
-- documentacao ajustada quando necessario
-- item fechado com referencia ao pull request da correcao
+- documentação ajustada quando necessário
+- item fechado com referência ao pull request da correção

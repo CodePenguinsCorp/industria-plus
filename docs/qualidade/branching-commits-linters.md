@@ -2,27 +2,27 @@
 
 ## Branches
 
-- `main`: apenas codigo estavel e pronto para entrega.
-- `develop`: integracao das funcionalidades da proxima versao.
+- `main`: apenas código estável e pronto para entrega.
+- `develop`: integração das funcionalidades da próxima versão.
 - `feature/<descricao>`: nova funcionalidade criada a partir de `develop`.
-- `fix/<descricao>`: correcao de defeito criada a partir de `develop`.
-- `refactor/<descricao>`: mudanca estrutural sem alteracao de comportamento.
+- `fix/<descricao>`: correção de defeito criada a partir de `develop`.
+- `refactor/<descricao>`: mudança estrutural sem alteração de comportamento.
 
-Nenhuma alteracao e feita diretamente em `main`. Features e correcoes entram em `develop` por pull
+Nenhuma alteração é feita diretamente em `main`. Features e correções entram em `develop` por pull
 request; uma entrega aprovada segue de `develop` para `main` por outro pull request.
 
 ## Pull requests
 
-- escopo unico e descricao objetiva
-- referencia ao requisito, bug ou debito tecnico
-- criterios de aceite e evidencias de teste preenchidos
-- aprovacao de pelo menos outro integrante da equipe
-- build, formatacao e testes obrigatorios aprovados
-- preferencia por alteracoes pequenas; pull requests acima de 400 linhas devem ser justificados
+- escopo único e descrição objetiva
+- referência ao requisito, bug ou débito técnico
+- critérios de aceite e evidências de teste preenchidos
+- aprovação de pelo menos outro integrante da equipe
+- build, formatação e testes obrigatórios aprovados
+- preferência por alterações pequenas; pull requests acima de 400 linhas devem ser justificados
 
 ## Commits
 
-O projeto usa Conventional Commits, com mensagens curtas em ingles:
+O projeto usa Conventional Commits, com mensagens curtas em inglês:
 
 - `feat(equipment): add equipment registration`
 - `fix(request): prevent third high urgency assignment`
@@ -32,19 +32,19 @@ O projeto usa Conventional Commits, com mensagens curtas em ingles:
 - `chore(ci): add backend test job`
 - `style(frontend): format request form`
 
-## Linters e formatacao
+## Linters e formatação
 
-- `frontend`: Prettier, compilacao estrita do TypeScript e build Angular.
-- `backend`: compilacao Maven, testes e convencoes Java verificadas no pull request.
-- `repositorio`: `.editorconfig` obrigatorio para todos os arquivos.
-- `evolucao do gate`: adicionar ESLint com angular-eslint e Spotless ou Checkstyle antes do primeiro
-  modulo funcional ser integrado.
+- `frontend`: Prettier, compilação estrita do TypeScript e build Angular.
+- `backend`: compilação Maven, testes e convenções Java verificadas no pull request.
+- `repositório`: `.editorconfig` obrigatório para todos os arquivos.
+- `evolução do gate`: adicionar ESLint com angular-eslint e Spotless ou Checkstyle antes do primeiro
+  módulo funcional ser integrado.
 
-A documentacao nao deve indicar uma ferramenta como ativa antes de sua configuracao existir no
-repositorio.
+A documentação não deve indicar uma ferramenta como ativa antes de sua configuração existir no
+repositório.
 
 ## Pipeline de CI
 
-O pipeline deve instalar dependencias, verificar formatacao, executar testes, gerar os builds e
-bloquear a integracao quando qualquer etapa falhar. Tambem bloqueia pull request sem revisao ou que
-viole uma regra de negocio essencial.
+O pipeline deve instalar dependências, verificar formatação, executar testes, gerar os builds e
+bloquear a integração quando qualquer etapa falhar. Também bloqueia pull request sem revisão ou que
+viole uma regra de negócio essencial.

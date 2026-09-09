@@ -1,8 +1,8 @@
 # Matriz RACI
 
-Esta matriz orienta o N1 do Helpdesk de Manutencao Industrial.
+Esta matriz orienta o N1 do Helpdesk de Manutenção Industrial.
 
-## Equipe e papeis
+## Equipe e papéis
 
 | Sigla | Papel | Integrante |
 | --- | --- | --- |
@@ -17,11 +17,11 @@ Esta matriz orienta o N1 do Helpdesk de Manutencao Industrial.
 
 | Atividade | PO | ER | QA | FE | BE | DO |
 | --- | --- | --- | --- | --- | --- | --- |
-| Refinar o escopo e as historias do N1 | A | R | C | C | C | I |
+| Refinar o escopo e as histórias do N1 | A | R | C | C | C | I |
 | Aprovar requisitos para desenvolvimento | A | R | C | C | C | I |
 | Definir arquitetura e stack | I | C | C | R | R | A |
-| Gerenciar o debito tecnico | I | I | C | C | C | A/R |
-| Planejar a estrategia de testes | I | C | A/R | C | C | C |
+| Gerenciar o débito técnico | I | I | C | C | C | A/R |
+| Planejar a estratégia de testes | I | C | A/R | C | C | C |
 | Implementar o frontend | I | C | C | A/R | C | I |
 | Implementar regras e APIs do backend | I | C | C | C | A/R | I |
 | Modelar e versionar o banco de dados | I | C | C | I | R | A |
@@ -33,13 +33,13 @@ Esta matriz orienta o N1 do Helpdesk de Manutencao Industrial.
 ## Legenda
 
 - `R`: executa a atividade
-- `A`: responde pelo resultado e concede a aprovacao final
-- `C`: participa da decisao ou revisao
+- `A`: responde pelo resultado e concede a aprovação final
+- `C`: participa da decisão ou revisão
 - `I`: deve ser informado sobre o andamento
 
 ## Regras de uso
 
-- Toda historia deve ter um responsavel tecnico antes de entrar em desenvolvimento.
-- A aprovacao exige escopo validado pelo PO, detalhamento pelo ER e testabilidade pelo QA.
-- Todo pull request precisa da aprovacao de pelo menos outro integrante da equipe.
-- Impedimentos e mudancas de escopo devem ser comunicados ao PO e aos papeis afetados.
+- Toda história deve ter um responsável técnico antes de entrar em desenvolvimento.
+- A aprovação exige escopo validado pelo PO, detalhamento pelo ER e testabilidade pelo QA.
+- Todo pull request precisa da aprovação de pelo menos outro integrante da equipe.
+- Impedimentos e mudanças de escopo devem ser comunicados ao PO e aos papéis afetados.
