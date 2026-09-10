@@ -28,14 +28,14 @@ deve referenciar o identificador do débito registrado.
 Qualquer débito que possa permitir mais de dois chamados de urgência `Alta` abertos para o mesmo
 técnico tem prioridade máxima.
 
-## Capacidade e pagamento
+## Tratamento de débitos
 
-- A equipe reserva aproximadamente 15% do esforço de cada ciclo para débitos técnicos.
+- A equipe reserva aproximadamente 1 semana do esforço de cada ciclo de release para débitos técnicos.
 - Débitos de prioridade alta devem entrar no ciclo atual ou bloquear a entrega afetada.
 - Os demais débitos são priorizados no refinamento conforme risco, impacto e custo de postergação.
 - Correção emergencial deve gerar uma tarefa de solução definitiva no ciclo atual ou no seguinte.
 
-## Critérios de encerramento
+## Critérios de encerramento de débito
 
 - causa do débito removida
 - código revisado
