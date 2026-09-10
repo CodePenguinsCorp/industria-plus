@@ -310,106 +310,128 @@ Os códigos mínimos do N1 são:
 
 ## Critérios de Aceitação dentro do Escopo da N1
 
-### Cadastros e abertura
+### Como verificar e registrar o aceite
 
-1. É possível cadastrar e listar um setor válido.
-2. É possível cadastrar e listar um equipamento com patrimônio único e setor existente.
-3. É possível cadastrar e listar um técnico com e-mail válido e único.
-4. É possível abrir um chamado válido, que nasce como `OPEN`, sem técnico e com `createdAt` definido
-   pelo backend.
-5. A abertura é recusada quando o equipamento não pertence ao setor informado.
-6. Entradas fora dos limites retornam o envelope de erro com `VALIDATION_ERROR` e os campos
-   inválidos.
+Cada cenário abaixo descreve uma **condição inicial**, uma **ação** e um **resultado esperado**.
+O cenário é aprovado somente quando todos os resultados descritos forem observados.
 
-### Consulta e ciclo de vida
+- Executar cada cenário com dados controlados e com as demais entradas válidas, para que a
+  recusa seja causada pela condição que está sendo verificada.
+- Nas operações aceitas, conferir a resposta e realizar uma nova consulta para confirmar os
+  dados persistidos. Nas recusadas, confirmar que não houve criação ou alteração indevida.
+- Neste documento, **não encerrado** significa `OPEN` (Aberto) ou `IN_PROGRESS` (Em andamento).
+  **Carga de alta urgência** é a quantidade de chamados `HIGH` não encerrados de um técnico.
+- Os códigos HTTP e de erro devem ser conferidos na API. Na interface, conferir os dados
+  apresentados e a mensagem compreensível ao usuário; não é necessário exibir códigos técnicos.
+- Registrar o identificador do cenário, commit, ambiente, data, responsável, resultado e evidência.
+  Um cenário não executado deve permanecer pendente, sem ser considerado aprovado.
 
-1. É possível filtrar chamados por status, por urgência ou pelos dois critérios em conjunto.
-2. A consulta apresenta chamados em `HIGH`, `MEDIUM`, `LOW` e, dentro de cada urgência, do mais novo
-   para o mais antigo.
-3. É possível atribuir um chamado aberto a um técnico e reatribuí-lo a outro técnico.
-4. As transições `OPEN` para `IN_PROGRESS`, `OPEN` para `CLOSED` e `IN_PROGRESS` para `CLOSED` são
-   aceitas.
-5. Qualquer outra transição é recusada, e `CLOSED` permanece terminal.
+### Cadastros e abertura de chamados — RF01 a RF12
 
-### RN-001
+| ID | Condição inicial e ação | Resultado esperado |
+| --- | --- | --- |
+| CA-C01 | Informar nome válido e descrição opcional de um setor e salvar. | A API retorna `201 Created`. O setor recebe identificador e aparece na consulta com nome e descrição informados, respeitando a normalização de textos. |
+| CA-C02 | Com um setor existente, cadastrar equipamento com patrimônio ainda não utilizado, nome válido e descrição opcional. | A API retorna `201 Created`. A consulta apresenta patrimônio, nome, descrição e o setor associado. |
+| CA-C03 | Cadastrar técnico com nome válido, e-mail válido ainda não utilizado e especialidade opcional. | A API retorna `201 Created`. O técnico aparece na consulta e inicia com carga de alta urgência igual a zero. |
+| CA-C04 | Tentar cadastrar equipamento com patrimônio já utilizado ou técnico com e-mail já utilizado. Executar uma tentativa para cada caso. | A API retorna `409 Conflict`, com `DUPLICATE_ASSET_TAG` ou `DUPLICATE_TECHNICIAN_EMAIL`, respectivamente. Nenhum registro duplicado é criado. |
+| CA-C05 | Abrir chamado com título e descrição válidos, equipamento existente e seu respectivo setor. Repetir para manutenção preventiva e corretiva e para urgências baixa, média e alta. | Cada abertura retorna `201 Created`, preserva tipo e urgência escolhidos e cria o chamado em `OPEN`, sem técnico e com `createdAt` definido pelo backend. |
+| CA-C06 | Abrir chamado indicando um equipamento existente e um setor existente diferente daquele ao qual o equipamento pertence. | A API retorna `409 Conflict` e `EQUIPMENT_SECTOR_MISMATCH`. Nenhum chamado é criado. |
+| CA-C07 | Informar setor inexistente no cadastro de equipamento; na abertura de chamado, informar equipamento ou setor inexistente, um por tentativa. | A API retorna `404 Not Found` e `SECTOR_NOT_FOUND` ou `EQUIPMENT_NOT_FOUND`, conforme a referência inválida. Nenhum registro é criado. |
+| CA-C08 | Omitir um campo obrigatório ou informar valor fora das validações de domínio, um campo por tentativa. | A API retorna `400 Bad Request`, `VALIDATION_ERROR` e o campo correspondente em `fieldErrors`. Nenhum registro inválido é criado. Para textos, aplicar também os cenários da RN-002. |
+| CA-C09 | Consultar um chamado criado e consultá-lo novamente após alterar sua atribuição ou status. | A consulta disponibiliza identificação, título, descrição, equipamento, setor, tipo, urgência, status, responsável quando houver e datas de criação e atualização. A criação é preservada e os dados refletem a alteração efetivada. |
 
-1. Um técnico sem chamados de urgência alta pode receber um chamado de urgência alta.
-2. Um técnico com um chamado de urgência alta aberto pode receber o segundo.
-3. Um técnico com dois chamados de urgência alta abertos não pode receber o terceiro; a API retorna
-   `409 Conflict` e `HIGH_URGENCY_LIMIT`.
-4. Depois que um dos chamados de urgência alta é encerrado, o técnico pode receber outro.
-5. Chamados de urgência diferente de alta não entram nessa contagem.
-6. Quando duas atribuições concorrentes tentam ultrapassar o limite para o mesmo técnico, somente a
-   atribuição que ainda respeita o limite é confirmada; a outra recebe `HIGH_URGENCY_LIMIT`, e o
-   estado persistido nunca supera dois chamados de alta urgência abertos.
+### Consulta e ciclo de vida — RF13 a RF18
 
-### RN-002
+| ID | Condição inicial e ação | Resultado esperado |
+| --- | --- | --- |
+| CA-F01 | Com chamados de diferentes status e urgências, consultar por status, por urgência e pelos dois filtros juntos, em consultas separadas. | Cada resultado contém somente chamados que atendem aos filtros. Quando combinados, ambos os critérios são atendidos. A ordenação segue a RN-005. |
+| CA-F02 | Com chamado em `OPEN`, solicitar `IN_PROGRESS`. Em outro chamado `OPEN`, solicitar `CLOSED`. Em chamado `IN_PROGRESS`, solicitar `CLOSED`. | Cada transição retorna `200 OK`, e a consulta posterior apresenta o status solicitado. |
+| CA-F03 | Em chamado não encerrado, solicitar uma transição fora da matriz permitida, incluindo repetir o status atual ou voltar de `IN_PROGRESS` para `OPEN`. | A API retorna `409 Conflict` e `INVALID_STATUS_TRANSITION`. O status anterior é preservado. |
+| CA-F04 | Em chamado `CLOSED`, tentar mudar o status, atribuir um técnico ou trocar o responsável, em tentativas separadas. | Todas as tentativas retornam `409 Conflict` e `MAINTENANCE_REQUEST_CLOSED`. Status e responsável permanecem inalterados. |
 
-1. Um texto obrigatório com espaços no início e no fim é aceito quando o conteúdo resultante
-   atende às validações do campo, sendo armazenado sem esses espaços.
-2. Um texto obrigatório vazio ou formado apenas por espaços é recusado com `400 Bad Request`,
-   `VALIDATION_ERROR` e identificação do campo em `fieldErrors`.
-3. Um texto cujo tamanho fica abaixo do mínimo após remover os espaços externos é recusado,
-   mesmo que o tamanho original atinja o mínimo exigido.
-4. Textos com tamanho exatamente igual ao mínimo ou ao máximo após a remoção dos espaços externos
-   são aceitos, desde que as demais validações sejam atendidas.
-5. Um texto que permanece acima do máximo permitido após a remoção dos espaços externos é
-   recusado com `VALIDATION_ERROR`, sem persistir o cadastro ou chamado.
+O aceite da atribuição e reatribuição é detalhado nas RN-001, RN-003 e RN-004 abaixo.
 
-### RN-003
+### RN-001 — Limite de dois chamados de alta urgência por técnico
 
-1. Um chamado válido pode ser aberto sem técnico, retornando `technicianId` e `technicianName`
-   nulos.
-2. Um chamado não encerrado pode ser atribuído a um técnico existente, desde que a RN-001 seja
-   respeitada; a resposta e a consulta posterior apresentam o responsável indicado.
-3. Uma atribuição com identificador positivo de técnico inexistente é recusada com
-   `404 Not Found` e `TECHNICIAN_NOT_FOUND`, preservando a atribuição anterior, quando houver.
-4. Um comando de atribuição com `technicianId` ausente, nulo, zero ou negativo é recusado com
-   `400 Bad Request` e `VALIDATION_ERROR`, sem alterar o responsável.
-5. A reatribuição para outro técnico existente substitui o responsável, respeitando a RN-001
-   e atualizando as contagens dos técnicos envolvidos quando o chamado for de alta urgência.
-6. Uma tentativa de deixar um chamado atribuído sem responsável por envio de `technicianId`
-   nulo é recusada; o técnico anterior permanece vinculado ao chamado.
+| ID | Condição inicial e ação | Resultado esperado |
+| --- | --- | --- |
+| CA-R1-01 | Atribuir um chamado `HIGH` não encerrado a um técnico com carga zero. | A atribuição é aceita com `200 OK`; a carga passa a um. |
+| CA-R1-02 | Atribuir outro chamado `HIGH` não encerrado ao mesmo técnico, agora com carga um. | A atribuição é aceita com `200 OK`; a carga passa a dois. |
+| CA-R1-03 | Com carga dois, tentar atribuir ao técnico um terceiro chamado `HIGH` não encerrado. | A API retorna `409 Conflict` e `HIGH_URGENCY_LIMIT`. A carga permanece dois, e o chamado mantém seu responsável anterior ou continua sem técnico. |
+| CA-R1-04 | Tentar reatribuir um chamado `HIGH` não encerrado para outro técnico que já possui carga dois. | A API retorna `409 Conflict` e `HIGH_URGENCY_LIMIT`. O técnico original permanece responsável, sem alterar as cargas. |
+| CA-R1-05 | Com carga dois, encerrar um dos chamados e depois atribuir outro `HIGH` não encerrado ao mesmo técnico. | O encerramento reduz a carga para um; a nova atribuição é aceita e a carga volta a dois. |
+| CA-R1-06 | Consultar a carga de um técnico com um chamado `HIGH` em `OPEN`, outro `HIGH` em `IN_PROGRESS`, além de chamados `HIGH` encerrados e chamados `LOW` ou `MEDIUM`. | A carga é exatamente dois: somente os chamados `HIGH` não encerrados são contados. |
+| CA-R1-07 | Com carga de alta urgência igual a dois, atribuir ao técnico um chamado `LOW` e outro `MEDIUM` não encerrados. | Ambas as atribuições são aceitas; a carga de alta urgência permanece dois. |
+| CA-R1-08 | Com carga um, enviar simultaneamente duas atribuições de chamados distintos `HIGH` não encerrados para o mesmo técnico. | Exatamente uma retorna `200 OK`; a outra retorna `409 Conflict` e `HIGH_URGENCY_LIMIT`. Após as duas respostas, a carga persistida é dois. |
 
-### RN-004
+### RN-002 — Validação de textos obrigatórios
 
-1. Repetir a atribuição ao responsável atual de um chamado em `OPEN` ou `IN_PROGRESS` retorna
-   `200 OK` e preserva o mesmo técnico, sem duplicar o vínculo ou aumentar sua carga.
-2. Quando o técnico já possui dois chamados de alta urgência não encerrados, repetir a atribuição
-   de um desses chamados ao mesmo técnico é aceito, sem retornar `HIGH_URGENCY_LIMIT`.
-3. Após várias repetições da mesma atribuição, a consulta do técnico mantém a contagem original
-   de chamados de alta urgência não encerrados.
-4. Repetir a atribuição ao mesmo técnico em um chamado `CLOSED` é recusado com `409 Conflict`
-   e `MAINTENANCE_REQUEST_CLOSED`, preservando o chamado encerrado.
+Aplicar os cenários aos campos textuais obrigatórios, usando os limites de cada campo definidos
+em **Domínio e validações**. Manter válidas as demais condições, como formato de e-mail e unicidade.
 
-### RN-005
+| ID | Condição inicial e ação | Resultado esperado |
+| --- | --- | --- |
+| CA-R2-01 | Enviar texto válido com espaços adicionais no início e no fim. | A operação é aceita e a consulta retorna o texto sem esses espaços externos. |
+| CA-R2-02 | Enviar texto vazio e, em outra tentativa, texto formado apenas por espaços. | Cada tentativa retorna `400 Bad Request`, `VALIDATION_ERROR` e o campo em `fieldErrors`; nenhum registro é criado. |
+| CA-R2-03 | Em campo com tamanho mínimo definido, enviar texto que só atinge esse mínimo quando os espaços externos são contados. | A operação é recusada com `VALIDATION_ERROR`, pois o tamanho é verificado após remover os espaços externos. |
+| CA-R2-04 | Enviar texto cujo conteúdo, após remover espaços externos, tenha exatamente o mínimo permitido e, em outra tentativa, exatamente o máximo. | Ambas as operações são aceitas, desde que as demais validações do campo sejam atendidas. |
+| CA-R2-05 | Enviar texto que, mesmo após remover espaços externos, exceda o máximo permitido. | A API retorna `400 Bad Request`, `VALIDATION_ERROR` e o campo em `fieldErrors`, sem criar o registro. |
 
-1. Uma consulta com chamados de urgências diferentes apresenta todos os de `HIGH` antes dos de
-   `MEDIUM`, e todos os de `MEDIUM` antes dos de `LOW`.
-2. Um chamado de alta urgência aparece antes de outro de menor urgência, mesmo que este tenha
-   sido criado mais recentemente.
-3. Dentro de uma mesma urgência, chamados com datas de criação diferentes aparecem do mais
-   recente para o mais antigo.
-4. Quando dois chamados possuem a mesma urgência e a mesma data e horário de criação, o de
-   maior identificador aparece primeiro.
-5. A ordenação é preservada ao filtrar por status, por urgência ou pelos dois critérios juntos,
-   considerando somente os chamados que atendem aos filtros.
+### RN-003 — Técnico obrigatório na atribuição
 
-### Qualidade e operação
+| ID | Condição inicial e ação | Resultado esperado |
+| --- | --- | --- |
+| CA-R3-01 | Abrir um chamado com os dados obrigatórios válidos, sem informar técnico. | A abertura é aceita; `technicianId` e `technicianName` são nulos. A exigência de técnico aplica-se ao comando de atribuição. |
+| CA-R3-02 | Em chamado não encerrado, selecionar técnico existente com capacidade segundo a RN-001 e confirmar a atribuição. | A API retorna `200 OK`; a resposta e a consulta posterior identificam o técnico selecionado. |
+| CA-R3-03 | Em chamado não encerrado, enviar identificador positivo de técnico inexistente. | A API retorna `404 Not Found` e `TECHNICIAN_NOT_FOUND`. O responsável anterior é preservado ou o chamado continua sem técnico. |
+| CA-R3-04 | Enviar comando de atribuição com `technicianId` ausente, nulo, zero ou negativo, em tentativas separadas. | Cada tentativa retorna `400 Bad Request`, `VALIDATION_ERROR` e erro no campo. Nenhuma atribuição é alterada. |
+| CA-R3-05 | Reatribuir chamado `HIGH` não encerrado do técnico A para o técnico B, existente e com capacidade disponível. | A API retorna `200 OK`; B passa a ser o responsável, a carga de A diminui em um e a de B aumenta em um. |
+| CA-R3-06 | Em chamado já atribuído, tentar remover o responsável enviando `technicianId` nulo. | A API retorna `400 Bad Request` e `VALIDATION_ERROR`. O técnico anterior continua responsável. |
 
-1. A consulta de técnicos apresenta a contagem de chamados de alta urgência em `OPEN` ou
-   `IN_PROGRESS`, sem incluir os encerrados.
-2. Patrimônio e e-mail duplicados são recusados com os respectivos códigos de conflito.
-3. Requisições diretas à API continuam sujeitas às mesmas validações e regras de negócio.
-4. As respostas respeitam os formatos JSON, datas e envelope de erro definidos neste documento.
-5. A interface apresenta status, urgências e mensagens ao usuário em português brasileiro.
-6. Os dados permanecem disponíveis após reiniciar a stack preservando o volume do banco.
-7. A configuração de produção publica somente a porta do frontend no host.
-8. As verificações de frontend (`npm run format`, `npm test` e `npm run build`) e backend
-   (`mvn test`) devem passar, conforme a [estratégia de testes](../qualidade/estrategia-testes.md).
-9. O fluxo manual de cadastro, abertura, atribuição, recusa do terceiro chamado de alta urgência
-   e encerramento deve ser validado antes da entrega oficial.
-10. Não deve haver defeito crítico ou alto aberto relacionado à entrega.
+### RN-004 — Repetição da atribuição ao mesmo técnico
 
-Os critérios descrevem as verificações exigidas para o aceite; este documento não representa
-evidência de que essas verificações já tenham sido executadas.
+| ID | Condição inicial e ação | Resultado esperado |
+| --- | --- | --- |
+| CA-R4-01 | Em chamado atribuído em `OPEN`, enviar novamente o identificador do responsável atual; repetir o cenário em `IN_PROGRESS`. | A API retorna `200 OK`, preserva o responsável e não duplica o vínculo nem aumenta sua carga. |
+| CA-R4-02 | Com técnico que já possui dois chamados `HIGH` não encerrados, repetir a atribuição de um desses chamados ao próprio técnico. | A API retorna `200 OK`, sem `HIGH_URGENCY_LIMIT`; a carga permanece dois. |
+| CA-R4-03 | Repetir várias vezes a atribuição de um chamado não encerrado ao responsável atual e consultar sua carga. | A contagem permanece igual à anterior às repetições. |
+| CA-R4-04 | Em chamado `CLOSED`, repetir a atribuição ao responsável atual. | A API retorna `409 Conflict` e `MAINTENANCE_REQUEST_CLOSED`. O chamado permanece encerrado, sem alteração de responsável. |
+
+### RN-005 — Ordenação da fila de chamados
+
+| ID | Condição inicial e ação | Resultado esperado |
+| --- | --- | --- |
+| CA-R5-01 | Consultar uma fila contendo chamados `HIGH`, `MEDIUM` e `LOW`. | Todos os `HIGH` aparecem antes dos `MEDIUM`, que aparecem antes dos `LOW`. |
+| CA-R5-02 | Consultar um chamado `HIGH` antigo e um chamado de menor urgência criado depois dele. | O chamado `HIGH` aparece primeiro; a urgência tem precedência sobre a data. |
+| CA-R5-03 | Consultar chamados de mesma urgência com datas e horários de criação diferentes. | Os chamados aparecem do mais recente para o mais antigo. |
+| CA-R5-04 | Com dados controlados de mesma urgência e mesmo valor de `createdAt`, consultar a fila. | O chamado com maior identificador aparece primeiro. |
+| CA-R5-05 | Aplicar filtro de status, de urgência e ambos juntos à fila, em consultas separadas. | Somente os chamados compatíveis são retornados, mantendo a ordem por urgência, criação e identificador. |
+
+### Qualidade e operação — Requisitos Não Funcionais
+
+| ID | Requisito e verificação | Resultado esperado |
+| --- | --- | --- |
+| CA-Q01 | **RNF01:** executar CA-R1-08 em ambiente de teste com MySQL. | A concorrência não ultrapassa a carga dois. Registrar as duas respostas e a consulta final; teste apenas em H2 não substitui essa evidência. |
+| CA-Q02 | **RNF02:** executar os cenários de entradas inválidas e recusas de negócio diretamente na API, sem usar a interface. | As mesmas validações são aplicadas e nenhum dado inválido é persistido. |
+| CA-Q03 | **RNF03:** cadastrar dados, registrar IDs e vínculos, reiniciar e depois recriar os contêineres em ambiente de teste preservando o volume do banco. | Após cada operação, os mesmos registros e vínculos continuam consultáveis. Não remover o volume durante a verificação. |
+| CA-Q04 | **RNF04:** enviar e consultar textos com acentos e inspecionar respostas com datas. | A comunicação utiliza JSON em UTF-8, preserva os caracteres e apresenta datas e horários em ISO 8601. |
+| CA-Q05 | **RNF05:** provocar falha de validação, recurso inexistente e conflito de negócio, em tentativas separadas. | Cada resposta contém o envelope documentado, status e código correspondentes; `fieldErrors` identifica campos inválidos ou é vazio quando não se aplica. |
+| CA-Q06 | **RNF06:** percorrer cadastros e chamados e provocar mensagens de validação e negócio. | Rótulos, status, urgências e mensagens destinados ao usuário são apresentados em português brasileiro. |
+| CA-Q07 | **RNF07:** simular uma exceção inesperada em teste controlado e inspecionar a resposta. | A API retorna `500 Internal Server Error`, `INTERNAL_ERROR` e mensagem genérica, sem credenciais, rastros de execução ou detalhes internos. |
+| CA-Q08 | **RNF08:** inspecionar as portas publicadas pela stack de produção em ambiente de teste e acessar a API pelo frontend. | Somente o frontend publica porta no host; Nginx encaminha a requisição ao backend pela rede interna, e o banco não publica porta no host. |
+| CA-Q09 | **RNF09:** subir a stack em ambiente de teste limpo, com variáveis configuradas e volume novo. | Frontend, backend e MySQL iniciam; Flyway aplica as migrations e o fluxo de cadastro e consulta funciona. Registrar a configuração utilizada sem expor credenciais. |
+| CA-Q10 | **RNF10:** revisar a organização do código dos domínios da N1. | Controllers validam entrada e delegam; serviços executam regras de negócio; repositórios concentram o acesso a dados; funcionalidades permanecem organizadas por domínio. |
+
+### Condições para concluir o aceite da N1
+
+- Todos os cenários acima devem ter resultado e evidência registrados; cenários pendentes ou
+  reprovados devem ser resolvidos antes de declarar o aceite completo.
+- Executar `npm run format`, `npm test` e `npm run build` no frontend e `mvn test` no backend,
+  conforme a [estratégia de testes](../qualidade/estrategia-testes.md), sem falhas pendentes.
+- Validar o fluxo completo pela interface: cadastrar setor, equipamento e técnico; abrir
+  chamados; atribuir dois de alta urgência; conferir a recusa do terceiro; encerrar um dos
+  anteriores; e confirmar que uma nova atribuição passa a ser aceita.
+- Não deve haver defeito crítico ou alto aberto relacionado à entrega.
+
+Estes são critérios exigidos para o aceite, e não uma declaração de testes já executados ou
+funcionalidades já aprovadas. Autenticação e evoluções N2/N3 permanecem fora deste aceite.
