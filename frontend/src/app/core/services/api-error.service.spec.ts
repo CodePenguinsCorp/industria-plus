@@ -34,6 +34,6 @@ describe('ApiErrorService', () => {
   it('returns a useful message when the backend is unreachable', () => {
     const error = new HttpErrorResponse({ status: 0 });
 
-    expect(service.toMessage(error)).toBe('Não foi possível conectar com o backend.');
+    expect(service.toMessage(error)).toBe('Não foi possível conectar ao serviço.');
   });
 });

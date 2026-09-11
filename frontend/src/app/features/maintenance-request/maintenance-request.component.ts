@@ -151,7 +151,7 @@ export class MaintenanceRequestComponent implements OnInit {
       return null;
     }
 
-    return `${technician.name} já aparece com ${technician.highUrgencyOpenRequests}/2 chamados de urgência Alta abertos. A API fará a validação definitiva.`;
+    return `${technician.name} já possui ${technician.highUrgencyOpenRequests}/2 chamados de urgência Alta abertos.`;
   }
 
   protected get descriptionLength(): number {
