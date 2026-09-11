@@ -62,5 +62,5 @@ como histórico do levantamento:
 - regras de inativação de equipamentos, setores e técnicos com histórico associado
 
 As decisões adotadas para a implementação e o aceite do N1 estão formalizadas no
-[refinamento funcional do N1](refinamento-n1.md). Esse refinamento complementa o escopo sem alterar
+[premissa inicial e critérios de aceite da N1](premissa-inicial%20N1.md). Esse documento complementa o escopo sem alterar
 os requisitos originais nem antecipar funcionalidades de N2/N3.

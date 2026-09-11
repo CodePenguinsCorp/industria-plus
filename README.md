@@ -258,12 +258,12 @@ docker compose --env-file .env.prod.example -f compose.prod.yaml config --quiet
 
 A API usa o contexto `/api` e expõe `/sectors`, `/equipments`, `/technicians` e
 `/maintenance-requests`. O contrato completo está no
-[refinamento do N1](docs/produto/refinamento-n1.md).
+[premissa inicial e critérios de aceite da N1](docs/produto/premissa-inicial%20N1.md).
 
 ## Documentação
 
 - [Escopo funcional](docs/produto/escopo.md)
-- [Refinamento e contrato do N1](docs/produto/refinamento-n1.md)
+- [Premissa inicial e critérios de aceite da N1](docs/produto/premissa-inicial%20N1.md)
 - [Matriz RACI](docs/governanca/raci.md)
 - [Política de débito técnico](docs/governanca/politica-debito-tecnico.md)
 - [Checklist de aprovação de requisitos](docs/governanca/aprovacao-requisitos.md)

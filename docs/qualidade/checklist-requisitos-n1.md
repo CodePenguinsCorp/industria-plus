@@ -3,7 +3,7 @@
 ## Objetivo e base da análise
 
 Esta checklist relaciona os 18 requisitos funcionais e os 10 requisitos não funcionais da
-[Premissa Inicial N1](../produto/premissa%20inicial%20N1.md) às evidências disponíveis no projeto.
+[Premissa Inicial N1](../produto/premissa-inicial%20N1.md) às evidências disponíveis no projeto.
 A análise considera o código, os testes existentes e as configurações de infraestrutura.
 
 **Tipo de verificação:** inspeção estática. As suítes de testes, o navegador e a stack Docker
