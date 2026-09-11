@@ -250,29 +250,68 @@ docker compose --env-file .env.prod.example -f compose.prod.yaml config --quiet
 
 ## Integração e entrega contínuas
 
-O GitHub Actions executa o workflow `CI` em pull requests e pushes para `develop` e `main`. O gate
-compila e testa o backend, valida formatação/testes/build do frontend e verifica os dois arquivos
-Compose. Recomenda-se proteger as duas branches exigindo os checks `Backend`, `Frontend` e
-`Docker Compose` antes do merge.
+O projeto usa GitHub Actions para testar o código, criar as imagens Docker e, quando configurado,
+atualizar o servidor de produção. A automação está dividida em dois workflows.
 
-Depois de um `CI` aprovado em `main`, o workflow `CD` publica no GHCR as imagens:
+### CI: validação do código
 
-- `ghcr.io/<owner>/<repositorio>/backend:sha-<commit>`
-- `ghcr.io/<owner>/<repositorio>/frontend:sha-<commit>`
-- a tag móvel `latest` para cada componente
+O workflow `CI` é executado em pull requests e em atualizações das branches `develop` e `main`. Ele
+interrompe o processo caso alguma destas verificações falhe:
 
-O deploy em servidor é opcional. Sem configuração adicional, o CD termina após publicar as imagens.
-Para habilitá-lo, configure a variável do repositório `PRODUCTION_DEPLOY_ENABLED=true`, crie o
-environment `production` no GitHub e cadastre nele:
+- compilação e testes do backend;
+- formatação, testes e build do frontend;
+- validação dos arquivos `compose.yaml` e `compose.prod.yaml`.
 
-- secrets `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_PATH`, `SSH_PRIVATE_KEY` e `SSH_KNOWN_HOSTS`;
-- variável opcional `DEPLOY_PORT` (o padrão é `22`).
+No GitHub, recomenda-se proteger `develop` e `main` e exigir a aprovação dos checks `Backend`,
+`Frontend` e `Docker Compose` antes de permitir um merge.
 
-`DEPLOY_PATH` deve apontar para um diretório do servidor que já contenha o `.env.prod`, gerado uma
-única vez com `scripts/init-prod-env.sh`. O workflow atualiza somente o Compose e o script de deploy;
-as credenciais e o volume MySQL permanecem no servidor. Para registry privado, autentique o Docker
-do servidor no GHCR com um token que tenha permissão `read:packages`. É recomendável exigir
-aprovação manual no environment `production`.
+### CD: publicação das imagens
+
+Quando o CI de um commit da `main` termina com sucesso, o workflow `CD` cria uma imagem Docker do
+backend e outra do frontend. As imagens são armazenadas no GitHub Container Registry (GHCR), que
+funciona como um repositório de pacotes Docker associado ao projeto.
+
+Por exemplo, para um repositório `code-penguins/industria-plus`, as imagens terão nomes semelhantes
+a estes:
+
+```text
+ghcr.io/code-penguins/industria-plus/backend:sha-a1b2c3...
+ghcr.io/code-penguins/industria-plus/frontend:sha-a1b2c3...
+```
+
+Cada imagem recebe duas identificações:
+
+- `sha-<commit>` identifica exatamente o commit usado na construção e não muda;
+- `latest` é um atalho que aponta para a publicação mais recente.
+
+O deploy usa a identificação `sha-<commit>`. Isso permite saber exatamente qual versão está em
+produção e facilita restaurar uma versão anterior. O GHCR apenas armazena as imagens: a aplicação
+continua sendo executada no servidor de produção.
+
+### Deploy automático no servidor
+
+Por padrão, o CD termina depois de publicar as imagens. Para também atualizar um servidor por SSH:
+
+1. Crie no GitHub a variável do repositório `PRODUCTION_DEPLOY_ENABLED` com o valor `true`.
+2. Crie um environment chamado `production`.
+3. Cadastre no environment as configurações abaixo.
+
+| Nome              | Tipo                | Finalidade                                                   |
+| ----------------- | ------------------- | ------------------------------------------------------------ |
+| `DEPLOY_HOST`     | Secret              | Endereço IP ou domínio do servidor                           |
+| `DEPLOY_USER`     | Secret              | Usuário usado na conexão SSH                                 |
+| `DEPLOY_PATH`     | Secret              | Diretório da aplicação no servidor                           |
+| `SSH_PRIVATE_KEY` | Secret              | Chave privada usada pelo GitHub Actions                      |
+| `SSH_KNOWN_HOSTS` | Secret              | Identificação pública do servidor para validar a conexão SSH |
+| `DEPLOY_PORT`     | Variável (opcional) | Porta SSH, caso seja diferente de `22`                       |
+
+Antes do primeiro deploy, o servidor deve ter Docker com Compose instalado e um arquivo `.env.prod`
+dentro de `DEPLOY_PATH`. Gere esse arquivo uma única vez com `scripts/init-prod-env.sh`; ele contém
+as credenciais do banco e não deve ser enviado ao GitHub. Se as imagens do GHCR forem privadas,
+execute `docker login ghcr.io` no servidor usando um token com permissão `read:packages`.
+
+É recomendável configurar o environment `production` para exigir aprovação manual antes de cada
+deploy.
 
 ## Fluxo principal do N1
 
