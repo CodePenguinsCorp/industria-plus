@@ -8,7 +8,7 @@ RUN npm ci
 COPY . .
 
 RUN set -eu; \
-    npm run build -- --configuration production; \
+    npm run build; \
     mkdir -p /output; \
     index_file="$(find dist -name index.html | head -n 1)"; \
     if [ -z "$index_file" ]; then \

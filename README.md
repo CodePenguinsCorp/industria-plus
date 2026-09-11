@@ -248,6 +248,32 @@ docker compose config --quiet
 docker compose --env-file .env.prod.example -f compose.prod.yaml config --quiet
 ```
 
+## Integração e entrega contínuas
+
+O GitHub Actions executa o workflow `CI` em pull requests e pushes para `develop` e `main`. O gate
+compila e testa o backend, valida formatação/testes/build do frontend e verifica os dois arquivos
+Compose. Recomenda-se proteger as duas branches exigindo os checks `Backend`, `Frontend` e
+`Docker Compose` antes do merge.
+
+Depois de um `CI` aprovado em `main`, o workflow `CD` publica no GHCR as imagens:
+
+- `ghcr.io/<owner>/<repositorio>/backend:sha-<commit>`
+- `ghcr.io/<owner>/<repositorio>/frontend:sha-<commit>`
+- a tag móvel `latest` para cada componente
+
+O deploy em servidor é opcional. Sem configuração adicional, o CD termina após publicar as imagens.
+Para habilitá-lo, configure a variável do repositório `PRODUCTION_DEPLOY_ENABLED=true`, crie o
+environment `production` no GitHub e cadastre nele:
+
+- secrets `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_PATH`, `SSH_PRIVATE_KEY` e `SSH_KNOWN_HOSTS`;
+- variável opcional `DEPLOY_PORT` (o padrão é `22`).
+
+`DEPLOY_PATH` deve apontar para um diretório do servidor que já contenha o `.env.prod`, gerado uma
+única vez com `scripts/init-prod-env.sh`. O workflow atualiza somente o Compose e o script de deploy;
+as credenciais e o volume MySQL permanecem no servidor. Para registry privado, autentique o Docker
+do servidor no GHCR com um token que tenha permissão `read:packages`. É recomendável exigir
+aprovação manual no environment `production`.
+
 ## Fluxo principal do N1
 
 1. Cadastre um setor em `/setores`.
