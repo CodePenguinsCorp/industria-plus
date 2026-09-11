@@ -43,6 +43,7 @@ export class EquipmentComponent implements OnInit {
   protected readonly sectors = signal<Sector[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly isSaving = signal(false);
+  protected readonly deletingId = signal<number | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
 
@@ -104,6 +105,34 @@ export class EquipmentComponent implements OnInit {
         query,
       ),
     );
+  }
+
+  protected deleteEquipment(equipment: Equipment): void {
+    this.clearFeedback();
+    if (!window.confirm(`Excluir o equipamento “${equipment.name}”?`)) {
+      return;
+    }
+
+    this.deletingId.set(equipment.id);
+    this.equipmentService
+      .delete(equipment.id)
+      .pipe(
+        finalize(() => this.deletingId.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.equipments.update((equipments) =>
+            equipments.filter((item) => item.id !== equipment.id),
+          );
+          this.successMessage.set(`Equipamento “${equipment.name}” excluído com sucesso.`);
+        },
+        error: (error: unknown) => {
+          this.errorMessage.set(
+            this.apiErrorService.toMessage(error, 'Não foi possível excluir o equipamento.'),
+          );
+        },
+      });
   }
 
   private loadData(): void {

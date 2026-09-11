@@ -37,6 +37,7 @@ export class SectorComponent implements OnInit {
   protected readonly sectors = signal<Sector[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly isSaving = signal(false);
+  protected readonly deletingId = signal<number | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
 
@@ -93,6 +94,32 @@ export class SectorComponent implements OnInit {
     return this.sectors().filter((sector) =>
       matchesSearch(`${sector.name} ${sector.description ?? ''}`, query),
     );
+  }
+
+  protected deleteSector(sector: Sector): void {
+    this.clearFeedback();
+    if (!window.confirm(`Excluir o setor “${sector.name}”?`)) {
+      return;
+    }
+
+    this.deletingId.set(sector.id);
+    this.sectorService
+      .delete(sector.id)
+      .pipe(
+        finalize(() => this.deletingId.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.sectors.update((sectors) => sectors.filter((item) => item.id !== sector.id));
+          this.successMessage.set(`Setor “${sector.name}” excluído com sucesso.`);
+        },
+        error: (error: unknown) => {
+          this.errorMessage.set(
+            this.apiErrorService.toMessage(error, 'Não foi possível excluir o setor.'),
+          );
+        },
+      });
   }
 
   private loadSectors(): void {

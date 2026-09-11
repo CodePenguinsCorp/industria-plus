@@ -15,12 +15,14 @@ describe('SectorComponent', () => {
   const sectorService = {
     list: vi.fn(() => of<Sector[]>([])),
     create: vi.fn(() => of(createdSector)),
+    delete: vi.fn(() => of(void 0)),
   };
 
   beforeEach(async () => {
     vi.clearAllMocks();
     sectorService.list.mockReturnValue(of<Sector[]>([]));
     sectorService.create.mockReturnValue(of(createdSector));
+    sectorService.delete.mockReturnValue(of(void 0));
 
     await TestBed.configureTestingModule({
       imports: [SectorComponent],
@@ -69,5 +71,19 @@ describe('SectorComponent', () => {
     component.searchControl.setValue('area integracao');
 
     expect(component.filteredSectors).toEqual([assemblySector]);
+  });
+
+  it('deletes a sector after confirmation', () => {
+    sectorService.list.mockReturnValue(of([createdSector]));
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const fixture = TestBed.createComponent(SectorComponent);
+    const component = fixture.componentInstance as any;
+    fixture.detectChanges();
+
+    component.deleteSector(createdSector);
+
+    expect(sectorService.delete).toHaveBeenCalledWith(createdSector.id);
+    expect(component.sectors()).toEqual([]);
+    expect(component.successMessage()).toContain('excluído com sucesso');
   });
 });

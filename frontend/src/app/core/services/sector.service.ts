@@ -15,4 +15,8 @@ export class SectorService {
   create(payload: SectorPayload): Observable<Sector> {
     return this.http.post<Sector>(this.baseUrl, payload);
   }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
 }

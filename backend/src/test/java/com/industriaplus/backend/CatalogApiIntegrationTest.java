@@ -5,6 +5,7 @@ import org.springframework.http.MediaType;
 
 import java.util.Map;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -131,5 +132,48 @@ class CatalogApiIntegrationTest extends ApiIntegrationTestSupport {
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.fieldErrors.name").exists())
             .andExpect(jsonPath("$.fieldErrors.email").exists());
+    }
+
+    @Test
+    void shouldDeleteCatalogResourcesWithoutLinks() throws Exception {
+        long sectorId = createSector("Almoxarifado");
+        long equipmentId = createEquipment(sectorId, "EQ-DELETE");
+        long technicianId = createTechnician("delete@example.com");
+
+        mockMvc.perform(delete("/api/technicians/{id}", technicianId).contextPath("/api"))
+            .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/api/equipments/{id}", equipmentId).contextPath("/api"))
+            .andExpect(status().isNoContent());
+        mockMvc.perform(delete("/api/sectors/{id}", sectorId).contextPath("/api"))
+            .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/sectors").contextPath("/api"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isEmpty());
+        mockMvc.perform(get("/api/equipments").contextPath("/api"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isEmpty());
+        mockMvc.perform(get("/api/technicians").contextPath("/api"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    void shouldRejectDeletingCatalogResourcesWithLinks() throws Exception {
+        long sectorId = createSector("Produção");
+        long equipmentId = createEquipment(sectorId, "EQ-IN-USE");
+        long technicianId = createTechnician("in-use@example.com");
+        long requestId = createMaintenanceRequest(equipmentId, sectorId, "MEDIUM");
+        assign(requestId, technicianId).getResponse();
+
+        mockMvc.perform(delete("/api/sectors/{id}", sectorId).contextPath("/api"))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("SECTOR_IN_USE"));
+        mockMvc.perform(delete("/api/equipments/{id}", equipmentId).contextPath("/api"))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("EQUIPMENT_IN_USE"));
+        mockMvc.perform(delete("/api/technicians/{id}", technicianId).contextPath("/api"))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.code").value("TECHNICIAN_IN_USE"));
     }
 }

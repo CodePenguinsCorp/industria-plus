@@ -2,6 +2,7 @@ package com.industriaplus.backend.sector;
 
 import com.industriaplus.backend.error.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +39,20 @@ public class SectorService {
                 "SECTOR_NOT_FOUND",
                 "Setor não encontrado."
             ));
+    }
+
+    public void delete(Long id) {
+        Sector sector = getRequired(id);
+        try {
+            sectorRepository.delete(sector);
+            sectorRepository.flush();
+        } catch (DataIntegrityViolationException exception) {
+            throw new BusinessException(
+                HttpStatus.CONFLICT,
+                "SECTOR_IN_USE",
+                "O setor não pode ser excluído enquanto possuir equipamentos vinculados."
+            );
+        }
     }
 
     private String trimToNull(String value) {

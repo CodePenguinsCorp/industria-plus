@@ -5,6 +5,7 @@ import com.industriaplus.backend.maintenancerequest.MaintenanceRequestRepository
 import com.industriaplus.backend.maintenancerequest.MaintenanceRequestStatus;
 import com.industriaplus.backend.maintenancerequest.Urgency;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +63,21 @@ public class TechnicianService {
     public Technician getRequiredForUpdate(Long id) {
         return technicianRepository.findByIdForUpdate(id)
             .orElseThrow(() -> technicianNotFound());
+    }
+
+    public void delete(Long id) {
+        Technician technician = technicianRepository.findById(id)
+            .orElseThrow(() -> technicianNotFound());
+        try {
+            technicianRepository.delete(technician);
+            technicianRepository.flush();
+        } catch (DataIntegrityViolationException exception) {
+            throw new BusinessException(
+                HttpStatus.CONFLICT,
+                "TECHNICIAN_IN_USE",
+                "O técnico não pode ser excluído enquanto possuir chamados vinculados."
+            );
+        }
     }
 
     private BusinessException technicianNotFound() {

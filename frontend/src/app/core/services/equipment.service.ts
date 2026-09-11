@@ -15,4 +15,8 @@ export class EquipmentService {
   create(payload: EquipmentPayload): Observable<Equipment> {
     return this.http.post<Equipment>(this.baseUrl, payload);
   }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
 }

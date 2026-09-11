@@ -4,6 +4,7 @@ import com.industriaplus.backend.error.BusinessException;
 import com.industriaplus.backend.sector.Sector;
 import com.industriaplus.backend.sector.SectorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +54,20 @@ public class EquipmentService {
                 "EQUIPMENT_NOT_FOUND",
                 "Equipamento não encontrado."
             ));
+    }
+
+    public void delete(Long id) {
+        Equipment equipment = getRequired(id);
+        try {
+            equipmentRepository.delete(equipment);
+            equipmentRepository.flush();
+        } catch (DataIntegrityViolationException exception) {
+            throw new BusinessException(
+                HttpStatus.CONFLICT,
+                "EQUIPMENT_IN_USE",
+                "O equipamento não pode ser excluído enquanto possuir chamados vinculados."
+            );
+        }
     }
 
     private String trimToNull(String value) {

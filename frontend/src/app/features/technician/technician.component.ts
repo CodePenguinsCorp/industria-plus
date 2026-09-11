@@ -38,6 +38,7 @@ export class TechnicianComponent implements OnInit {
   protected readonly technicians = signal<Technician[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly isSaving = signal(false);
+  protected readonly deletingId = signal<number | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
 
@@ -101,6 +102,34 @@ export class TechnicianComponent implements OnInit {
     return this.technicians().filter((technician) =>
       matchesSearch(`${technician.name} ${technician.email} ${technician.specialty ?? ''}`, query),
     );
+  }
+
+  protected deleteTechnician(technician: Technician): void {
+    this.clearFeedback();
+    if (!window.confirm(`Excluir o técnico “${technician.name}”?`)) {
+      return;
+    }
+
+    this.deletingId.set(technician.id);
+    this.technicianService
+      .delete(technician.id)
+      .pipe(
+        finalize(() => this.deletingId.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: () => {
+          this.technicians.update((technicians) =>
+            technicians.filter((item) => item.id !== technician.id),
+          );
+          this.successMessage.set(`Técnico “${technician.name}” excluído com sucesso.`);
+        },
+        error: (error: unknown) => {
+          this.errorMessage.set(
+            this.apiErrorService.toMessage(error, 'Não foi possível excluir o técnico.'),
+          );
+        },
+      });
   }
 
   private loadTechnicians(): void {
