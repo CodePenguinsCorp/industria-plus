@@ -21,6 +21,8 @@ public interface UserRepository extends JpaRepository<AppUser, Long> {
 
     boolean existsByEmailIgnoreCase(String email);
 
+    boolean existsByRole(Role role);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select u from AppUser u where u.id = :id and u.role = :role")
     Optional<AppUser> findByIdAndRoleForUpdate(@Param("id") Long id, @Param("role") Role role);

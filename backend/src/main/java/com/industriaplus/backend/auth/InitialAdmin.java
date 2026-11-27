@@ -27,7 +27,7 @@ public class InitialAdmin implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         if (password.isBlank()) return;
         jdbc.queryForList("select id from bootstrap_registry order by id for update");
-        if (users.count() > 0) return;
+        if (users.existsByRole(Role.ADMIN)) return;
         if (password.length() < 12
                 || password.length() > 72
                 || password.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 72)
