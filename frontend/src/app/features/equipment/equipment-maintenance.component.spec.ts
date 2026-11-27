@@ -32,6 +32,7 @@ describe('EquipmentMaintenanceComponent', () => {
       mtbfHours,
       state,
     });
+    http.expectOne('/api/equipments/1/preventive-plan').flush(null);
     fixture.detectChanges();
     return fixture;
   }
@@ -68,5 +69,28 @@ describe('EquipmentMaintenanceComponent', () => {
     });
     fixture.detectChanges();
     expect(fixture.nativeElement.textContent).toContain('50');
+  });
+
+  it('shows the next actual due date returned after generating an overdue plan', () => {
+    const fixture = create();
+    fixture.componentInstance.planForm.setValue({
+      title: 'Inspeção',
+      description: 'Inspeção da máquina.',
+      intervalDays: 7,
+      nextDueDate: '2026-10-01',
+      enabled: true,
+    });
+    fixture.componentInstance.savePlan();
+    const request = http.expectOne('/api/equipments/1/preventive-plan');
+    expect(request.request.method).toBe('PUT');
+    request.flush({
+      id: 1,
+      title: 'Inspeção',
+      description: 'Inspeção da máquina.',
+      intervalDays: 7,
+      nextDueDate: '2026-12-01',
+      enabled: true,
+    });
+    expect(fixture.componentInstance.planForm.controls.nextDueDate.value).toBe('2026-12-01');
   });
 });

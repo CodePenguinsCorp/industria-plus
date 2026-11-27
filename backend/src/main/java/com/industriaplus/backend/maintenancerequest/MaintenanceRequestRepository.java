@@ -48,6 +48,8 @@ public interface MaintenanceRequestRepository extends JpaRepository<MaintenanceR
 
     boolean existsByTechnicianId(Long technicianId);
 
+    boolean existsByPreventivePlanIdAndScheduledFor(Long preventivePlanId, java.time.LocalDate scheduledFor);
+
     @Query("""
         select count(r) from MaintenanceRequest r
         where r.equipment.id = :equipmentId and r.type = :type

@@ -14,6 +14,52 @@ class EquipmentEvolutionIntegrationTest extends ApiIntegrationTestSupport {
     @Autowired private JdbcTemplate jdbc;
 
     @Test
+    void shouldGenerateOneOverduePreventiveAndKeepCadenceWithoutDuplicating() throws Exception {
+        long equipment = createEquipment(createSector("Preventivas"), "PLAN-01");
+        Map<String, Object> plan = Map.of("title", "Lubrificação programada",
+            "description", "Verificar e lubrificar o equipamento.", "intervalDays", 7,
+            "nextDueDate", "2026-10-01", "enabled", true);
+        for (int attempt = 0; attempt < 2; attempt++) {
+            mockMvc.perform(put("/api/equipments/{id}/preventive-plan", equipment).contextPath("/api")
+                    .contentType(MediaType.APPLICATION_JSON).content(json(plan)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.enabled").value(true));
+        }
+        mockMvc.perform(get("/api/maintenance-requests").contextPath("/api"))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].type").value("PREVENTIVE"))
+            .andExpect(jsonPath("$[0].urgency").value("MEDIUM"))
+            .andExpect(jsonPath("$[0].technicianId").doesNotExist());
+        org.junit.jupiter.api.Assertions.assertEquals("Agendamento automático", jdbc.queryForObject(
+            "select actor from maintenance_history where event_type='CREATED'", String.class));
+        java.time.LocalDate next = jdbc.queryForObject("select next_due_date from preventive_plans",
+            java.time.LocalDate.class);
+        org.junit.jupiter.api.Assertions.assertTrue(next.isAfter(java.time.LocalDate.now()));
+    }
+
+    @Test
+    void shouldNotGenerateFutureOrPausedPlansAndGenerateWhenResumed() throws Exception {
+        long equipment = createEquipment(createSector("Pausa"), "PLAN-02");
+        for (Map<String, Object> input : java.util.List.<Map<String, Object>>of(
+            Map.of("title", "Inspeção", "description", "Inspeção programada da máquina.", "intervalDays", 30,
+                "nextDueDate", java.time.LocalDate.now().plusDays(2).toString(), "enabled", true),
+            Map.of("title", "Inspeção", "description", "Inspeção programada da máquina.", "intervalDays", 30,
+                "nextDueDate", "2026-10-01", "enabled", false))) {
+            mockMvc.perform(put("/api/equipments/{id}/preventive-plan", equipment).contextPath("/api")
+                    .contentType(MediaType.APPLICATION_JSON).content(json(input)))
+                .andExpect(status().isOk());
+        }
+        mockMvc.perform(get("/api/maintenance-requests").contextPath("/api"))
+            .andExpect(jsonPath("$.length()").value(0));
+        mockMvc.perform(put("/api/equipments/{id}/preventive-plan", equipment).contextPath("/api")
+                .contentType(MediaType.APPLICATION_JSON).content(json(Map.of(
+                    "title", "Inspeção", "description", "Inspeção programada da máquina.", "intervalDays", 30,
+                    "nextDueDate", "2026-10-01", "enabled", true))))
+            .andExpect(status().isOk());
+        mockMvc.perform(get("/api/maintenance-requests").contextPath("/api"))
+            .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
     void shouldForbidTechnicianConfigurationButAllowReadingReliability() throws Exception {
         long equipment = createEquipment(createSector("Permissões"), "PERM-01");
         createTechnician("tech.evolution@test.local");
@@ -22,7 +68,7 @@ class EquipmentEvolutionIntegrationTest extends ApiIntegrationTestSupport {
             .user("tech.evolution@test.local").roles("TECHNICIAN");
         mockMvc.perform(get("/api/equipments/{id}/reliability", equipment).contextPath("/api").with(tech))
             .andExpect(status().isOk());
-        for (String endpoint : java.util.List.of("reliability")) {
+        for (String endpoint : java.util.List.of("reliability", "preventive-plan")) {
             mockMvc.perform(put("/api/equipments/{id}/" + endpoint, equipment).contextPath("/api")
                     .with(tech).contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isForbidden());
