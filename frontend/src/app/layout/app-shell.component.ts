@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
+import { AuthService } from '../core/services/auth.service';
 @Component({
   selector: 'app-shell',
   imports: [RouterLink, RouterLinkActive, RouterOutlet],
@@ -8,10 +9,16 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppShellComponent {
+  protected readonly auth = inject(AuthService);
+  protected roleLabel() {
+    return { ADMIN: 'Administrador', MANAGER: 'Gestor', TECHNICIAN: 'Técnico' }[
+      this.auth.user()?.role ?? 'TECHNICIAN'
+    ];
+  }
   protected readonly title = 'Industria Plus';
   protected readonly currentYear = new Date().getFullYear();
 
-  protected readonly navigation = [
+  private readonly allNavigation = [
     { label: 'Visão geral', shortLabel: 'Início', icon: 'dashboard', route: '/', exact: true },
     {
       label: 'Chamados',
@@ -34,6 +41,15 @@ export class AppShellComponent {
       icon: 'technicians',
       route: '/tecnicos',
       exact: false,
+      managersOnly: true,
     },
   ];
+
+  /** A tela de Técnicos aparece para administrador (edição) e gestor (visualização). */
+  protected readonly navigation = computed(() =>
+    this.allNavigation.filter((item) => !item.managersOnly || this.auth.canManage()),
+  );
+  protected readonly navCount = computed(
+    () => this.navigation().length + (this.auth.isAdmin() ? 1 : 0),
+  );
 }

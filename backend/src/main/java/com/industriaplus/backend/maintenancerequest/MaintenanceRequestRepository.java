@@ -25,6 +25,9 @@ public interface MaintenanceRequestRepository extends JpaRepository<MaintenanceR
         @Param("urgency") Urgency urgency
     );
 
+    @EntityGraph(attributePaths = {"equipment", "sector", "technician"})
+    List<MaintenanceRequest> findByEquipmentIdOrderByCreatedAtDescIdDesc(Long equipmentId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @EntityGraph(attributePaths = {"equipment", "sector", "technician"})
     @Query("select request from MaintenanceRequest request where request.id = :id")
@@ -42,6 +45,8 @@ public interface MaintenanceRequestRepository extends JpaRepository<MaintenanceR
         @Param("urgency") Urgency urgency,
         @Param("closedStatus") MaintenanceRequestStatus closedStatus
     );
+
+    boolean existsByTechnicianId(Long technicianId);
 
     @Query("""
         select new com.industriaplus.backend.technician.TechnicianWorkload(

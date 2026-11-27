@@ -150,7 +150,7 @@
   }
 
   .sidebar__nav {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--nav-count, 5), minmax(0, 1fr));
     gap: 3px;
   }
 

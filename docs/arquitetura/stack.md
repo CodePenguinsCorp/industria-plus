@@ -35,7 +35,7 @@ backend/src/main/java/com/industriaplus/backend/
 |-- health/                    # verificação operacional
 |-- equipment/                 # equipamentos
 |-- sector/                    # setores
-|-- technician/                # técnicos
+|-- technician/                # técnicos (usuários com perfil TECHNICIAN): carga e gestor vinculado
 `-- maintenancerequest/        # chamados e regra de atribuição
 ```
 

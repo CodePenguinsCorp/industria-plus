@@ -29,6 +29,10 @@ export class MaintenanceRequestService {
     return this.http.get<MaintenanceRequest[]>(this.baseUrl, { params });
   }
 
+  detail(id: number): Observable<MaintenanceRequest> {
+    return this.http.get<MaintenanceRequest>(`${this.baseUrl}/${id}`);
+  }
+
   create(payload: MaintenanceRequestPayload): Observable<MaintenanceRequest> {
     return this.http.post<MaintenanceRequest>(this.baseUrl, payload);
   }

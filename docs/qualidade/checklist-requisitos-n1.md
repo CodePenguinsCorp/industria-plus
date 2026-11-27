@@ -222,7 +222,7 @@ Esta checklist mantém o escopo da N1; autenticação e evoluções N2/N3 não s
 [request-response]: ../../backend/src/main/java/com/industriaplus/backend/maintenancerequest/MaintenanceRequestResponse.java
 [request-status]: ../../backend/src/main/java/com/industriaplus/backend/maintenancerequest/MaintenanceRequestStatus.java
 [technician-service]: ../../backend/src/main/java/com/industriaplus/backend/technician/TechnicianService.java
-[technician-repository]: ../../backend/src/main/java/com/industriaplus/backend/technician/TechnicianRepository.java
+[technician-repository]: ../../backend/src/main/java/com/industriaplus/backend/auth/UserRepository.java
 [errors]: ../../backend/src/main/java/com/industriaplus/backend/error/RestExceptionHandler.java
 [features]: ../../frontend/src/app/features/
 [sector-ui]: ../../frontend/src/app/features/sector/

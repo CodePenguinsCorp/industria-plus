@@ -2,7 +2,7 @@ package com.industriaplus.backend.maintenancerequest;
 
 import com.industriaplus.backend.equipment.Equipment;
 import com.industriaplus.backend.sector.Sector;
-import com.industriaplus.backend.technician.Technician;
+import com.industriaplus.backend.auth.AppUser;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,7 +47,7 @@ public class MaintenanceRequest {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "technician_id")
-    private Technician technician;
+    private AppUser technician;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "request_type", nullable = false, length = 20)
@@ -86,7 +86,7 @@ public class MaintenanceRequest {
         this.status = MaintenanceRequestStatus.OPEN;
     }
 
-    public void assignTo(Technician technician) {
+    public void assignTo(AppUser technician) {
         this.technician = technician;
     }
 

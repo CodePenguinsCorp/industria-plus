@@ -32,6 +32,7 @@ function New-HexSecret {
 
 $mysqlPassword = New-HexSecret 24
 $mysqlRootPassword = New-HexSecret 24
+$initialAdminPassword = New-HexSecret 24
 
 $content = @"
 # Production Compose
@@ -47,6 +48,9 @@ FRONTEND_IMAGE=$FrontendImage
 
 # Backend / Spring Boot
 LOG_LEVEL=INFO
+INITIAL_ADMIN_EMAIL=admin@industria.local
+INITIAL_ADMIN_PASSWORD=$initialAdminPassword
+SESSION_COOKIE_SECURE=true
 "@
 
 $outputDirectory = Split-Path -Parent $OutputPath

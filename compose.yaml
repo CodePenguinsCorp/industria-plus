@@ -32,6 +32,9 @@ services:
       mysql:
         condition: service_healthy
     environment:
+      INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:-admin@industria.local}
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
       APP_PORT: 8080
       DB_HOST: mysql
       DB_PORT: 3306

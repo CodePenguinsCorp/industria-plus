@@ -40,18 +40,21 @@ export interface EquipmentPayload {
   sectorId: number;
 }
 
+/** Técnico é um usuário com perfil TECHNICIAN, vinculado a um gestor. */
 export interface Technician extends CreatedResource {
   id: number;
   name: string;
   email: string;
   specialty: string | null;
+  managerId: number | null;
+  managerName: string | null;
   highUrgencyOpenRequests: number;
 }
 
-export interface TechnicianPayload {
+export interface ManagerOption {
+  id: number;
   name: string;
   email: string;
-  specialty?: string;
 }
 
 export interface MaintenanceRequest extends CreatedResource {
@@ -100,4 +103,50 @@ export interface ApiErrorResponse {
   code?: string;
   path?: string;
   fieldErrors?: Record<string, string>;
+}
+
+export type UserRole = 'ADMIN' | 'MANAGER' | 'TECHNICIAN';
+export interface AppUser {
+  id: number;
+  name: string;
+  email: string;
+  role: UserRole;
+  specialty: string | null;
+  managerId: number | null;
+  managerName: string | null;
+  mustChangePassword: boolean;
+  createdAt?: string;
+}
+export interface UserPayload {
+  name: string;
+  email: string;
+  password: string;
+  role: UserRole;
+  managerId: number | null;
+  specialty: string | null;
+}
+export interface ReplacedPart {
+  id?: number;
+  name: string;
+  quantity: number;
+}
+export interface HistoryEntry {
+  id: number;
+  requestId: number;
+  eventType: 'CREATED' | 'STATUS' | 'ASSIGNMENT' | 'INTERVENTION';
+  actor: string;
+  description: string;
+  previousStatus: string | null;
+  currentStatus: string;
+  previousTechnicianId: number | null;
+  previousTechnicianName: string | null;
+  currentTechnicianId: number | null;
+  currentTechnicianName: string | null;
+  createdAt: string;
+  parts: ReplacedPart[];
+}
+export interface EquipmentDetail {
+  equipment: Equipment;
+  requests: MaintenanceRequest[];
+  history: HistoryEntry[];
 }

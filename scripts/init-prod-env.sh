@@ -26,6 +26,7 @@ new_hex_secret() {
 
 mysql_password="$(new_hex_secret 24)"
 mysql_root_password="$(new_hex_secret 24)"
+initial_admin_password="$(new_hex_secret 24)"
 
 cat > "$output_path" <<EOF
 # Production Compose
@@ -41,6 +42,9 @@ FRONTEND_IMAGE=$frontend_image
 
 # Backend / Spring Boot
 LOG_LEVEL=INFO
+INITIAL_ADMIN_EMAIL=admin@industria.local
+INITIAL_ADMIN_PASSWORD=$initial_admin_password
+SESSION_COOKIE_SECURE=true
 EOF
 
 echo "Arquivo $output_path criado com senhas fortes."

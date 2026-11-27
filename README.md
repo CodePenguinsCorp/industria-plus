@@ -4,6 +4,10 @@ Helpdesk para organizar a manutenção preventiva e corretiva de equipamentos in
 usa Angular no frontend, Spring Boot no backend e MySQL, com execução local e implantação
 conteinerizadas por Docker Compose.
 
+## Login, perfis e histórico
+
+Esta versão adiciona autenticação por sessão, perfis Administrador/Gestor/Técnico, detalhes do equipamento e registro de serviços/peças. Técnicos são usuários com o perfil Técnico, vinculados a um gestor, e todo acesso cadastrado pelo administrador recebe uma senha provisória que deve ser trocada no primeiro login. Consulte [ATUALIZACAO.md](ATUALIZACAO.md) antes de atualizar uma instalação existente e para configurar o primeiro administrador.
+
 ## Equipe
 
 Grupo: `Code Penguins`
@@ -57,6 +61,7 @@ Na raiz do repositório, crie o arquivo de configuração local e suba a stack:
 
 ```powershell
 Copy-Item .env.example .env
+# Preencha INITIAL_ADMIN_PASSWORD no .env antes da primeira execução.
 .\run-local.ps1 -Build
 ```
 
@@ -317,12 +322,13 @@ deploy.
 
 1. Cadastre um setor em `/setores`.
 2. Cadastre um equipamento vinculado ao setor em `/equipamentos`.
-3. Cadastre os técnicos em `/tecnicos`.
+3. Como administrador, cadastre um gestor e os técnicos em `/usuarios` (perfil Técnico e gestor
+   vinculado). A equipe fica visível em `/tecnicos` para administradores e gestores.
 4. Abra, priorize e atribua chamados em `/chamados`.
 5. Inicie ou encerre o atendimento pela fila de chamados.
 
-A API usa o contexto `/api` e expõe `/sectors`, `/equipments`, `/technicians` e
-`/maintenance-requests`. O contrato completo está no
+A API usa o contexto `/api` e expõe `/sectors`, `/equipments`, `/technicians` (consulta, gestor
+vinculado e exclusão), `/users` e `/maintenance-requests`. O contrato completo está no
 [premissa inicial e critérios de aceite da N1](docs/produto/premissa-inicial%20N1.md).
 
 ## Documentação

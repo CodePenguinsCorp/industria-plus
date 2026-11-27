@@ -4,8 +4,13 @@
       <strong>{{ title }}</strong>
     </a>
 
-    <nav class="sidebar__nav" aria-label="Navegação principal">
-      @for (item of navigation; track item.route) {
+    <nav
+      class="sidebar__nav"
+      [class.admin-navigation]="auth.isAdmin()"
+      [style.--nav-count]="navCount()"
+      aria-label="Navegação principal"
+    >
+      @for (item of navigation(); track item.route) {
         <a
           [routerLink]="item.route"
           routerLinkActive="is-active"
@@ -47,14 +52,40 @@
           <span class="nav-arrow" aria-hidden="true">›</span>
         </a>
       }
+      @if (auth.isAdmin()) {
+        <a routerLink="/usuarios" routerLinkActive="is-active"
+          ><span class="nav-icon" aria-hidden="true"
+            ><svg viewBox="0 0 24 24">
+              <path
+                d="M8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm8-1a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM2 21v-3a5 5 0 0 1 5-5h2a5 5 0 0 1 5 5v3H2Zm13-8h1a5 5 0 0 1 5 5v3h-4"
+              /></svg></span
+          ><span class="nav-label">Usuários</span
+          ><span class="nav-label nav-label--short">Acessos</span
+          ><span class="nav-arrow" aria-hidden="true">›</span></a
+        >
+      }
     </nav>
 
     <div class="sidebar__footer">
+      <p class="session-label">{{ auth.user()?.name }} · {{ roleLabel() }}</p>
+      <button
+        class="button button--ghost button--small session-logout"
+        type="button"
+        (click)="auth.logout()"
+      >
+        Sair
+      </button>
       <small class="copyright">CodePenguins · {{ currentYear }}</small>
     </div>
   </aside>
 
   <div class="workspace">
+    <div class="mobile-session">
+      <span>{{ auth.user()?.name }} · {{ roleLabel() }}</span
+      ><button class="button button--ghost button--small" type="button" (click)="auth.logout()">
+        Sair
+      </button>
+    </div>
     <main class="workspace__content">
       <router-outlet />
     </main>

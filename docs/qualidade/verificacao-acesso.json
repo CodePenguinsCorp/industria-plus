@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-27",
+  "code_commit": "4a12a1882e77d126a5d97d04f2420f26c62d5dca",
+  "environment": {
+    "jdk": "22.0.2 compiling release 17",
+    "frontend": "Angular/Vitest",
+    "os": "Windows 11",
+    "mysql": "8.4",
+    "maven": "3.9.12"
+  },
+  "checks": [
+    {
+      "exit_code": 0,
+      "result": "[INFO] Tests run: 92, Failures: 0, Errors: 0, Skipped: 0",
+      "name": "h2"
+    },
+    {
+      "exit_code": 0,
+      "result": "Test Files  10 passed (10); Tests  33 passed (33)",
+      "name": "frontend"
+    },
+    {
+      "exit_code": 0,
+      "result": "Exit code 0",
+      "name": "format"
+    },
+    {
+      "exit_code": 0,
+      "result": "Exit code 0",
+      "name": "build"
+    },
+    {
+      "exit_code": 0,
+      "result": "Exit code 0",
+      "name": "compose-local"
+    },
+    {
+      "exit_code": 0,
+      "result": "Exit code 0",
+      "name": "compose-prod"
+    }
+  ]
+}

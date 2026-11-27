@@ -45,19 +45,24 @@ class CatalogApiIntegrationTest extends ApiIntegrationTestSupport {
             .andExpect(jsonPath("$.sectorName").value("Usinagem"))
             .andExpect(jsonPath("$.createdAt").isNotEmpty());
 
-        mockMvc.perform(post("/api/technicians")
+        long managerId = createManager("gestor@example.com");
+        mockMvc.perform(post("/api/users")
                 .contextPath("/api")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(Map.of(
                     "name", "  Ana Técnica  ",
                     "email", "  ANA@EXAMPLE.COM  ",
+                    "password", TEMPORARY_PASSWORD,
+                    "role", "TECHNICIAN",
+                    "managerId", managerId,
                     "specialty", "  Elétrica  "
                 ))))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.name").value("Ana Técnica"))
             .andExpect(jsonPath("$.email").value("ana@example.com"))
             .andExpect(jsonPath("$.specialty").value("Elétrica"))
-            .andExpect(jsonPath("$.highUrgencyOpenRequests").value(0))
+            .andExpect(jsonPath("$.managerId").value(managerId))
+            .andExpect(jsonPath("$.mustChangePassword").value(true))
             .andExpect(jsonPath("$.createdAt").isNotEmpty());
 
         mockMvc.perform(get("/api/sectors").contextPath("/api"))
@@ -68,12 +73,16 @@ class CatalogApiIntegrationTest extends ApiIntegrationTestSupport {
             .andExpect(jsonPath("$[0].assetTag").value("EQ-001"));
         mockMvc.perform(get("/api/technicians").contextPath("/api"))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.length()").value(1))
             .andExpect(jsonPath("$[0].email").value("ana@example.com"))
-            .andExpect(jsonPath("$[0].highUrgencyOpenRequests").value(0));
+            .andExpect(jsonPath("$[0].specialty").value("Elétrica"))
+            .andExpect(jsonPath("$[0].managerName").value("Gestor de manutenção"))
+            .andExpect(jsonPath("$[0].highUrgencyOpenRequests").value(0))
+            .andExpect(jsonPath("$[0].createdAt").isNotEmpty());
     }
 
     @Test
-    void shouldRejectDuplicateAssetTagAndTechnicianEmail() throws Exception {
+    void shouldRejectDuplicateAssetTagAndUserEmail() throws Exception {
         long sectorId = createSector("Montagem");
         createEquipment(sectorId, "EQ-100");
         createTechnician("joao@example.com");
@@ -89,15 +98,17 @@ class CatalogApiIntegrationTest extends ApiIntegrationTestSupport {
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.code").value("DUPLICATE_ASSET_TAG"));
 
-        mockMvc.perform(post("/api/technicians")
+        mockMvc.perform(post("/api/users")
                 .contextPath("/api")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(Map.of(
-                    "name", "Outro técnico",
-                    "email", "JOAO@EXAMPLE.COM"
+                    "name", "Outro gestor",
+                    "email", "JOAO@EXAMPLE.COM",
+                    "password", TEMPORARY_PASSWORD,
+                    "role", "MANAGER"
                 ))))
             .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.code").value("DUPLICATE_TECHNICIAN_EMAIL"));
+            .andExpect(jsonPath("$.code").value("DUPLICATE_USER_EMAIL"));
     }
 
     @Test
@@ -122,16 +133,19 @@ class CatalogApiIntegrationTest extends ApiIntegrationTestSupport {
             .andExpect(jsonPath("$.fieldErrors.assetTag").exists())
             .andExpect(jsonPath("$.fieldErrors.name").exists());
 
-        mockMvc.perform(post("/api/technicians")
+        mockMvc.perform(post("/api/users")
                 .contextPath("/api")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json(Map.of(
-                    "name", " t ",
-                    "email", "not-an-email"
+                    "name", "Técnico",
+                    "email", "not-an-email",
+                    "password", "curta",
+                    "role", "TECHNICIAN"
                 ))))
             .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.fieldErrors.name").exists())
-            .andExpect(jsonPath("$.fieldErrors.email").exists());
+            .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+            .andExpect(jsonPath("$.fieldErrors.email").exists())
+            .andExpect(jsonPath("$.fieldErrors.password").exists());
     }
 
     @Test

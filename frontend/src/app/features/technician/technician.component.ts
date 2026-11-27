@@ -8,79 +8,44 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize } from 'rxjs';
-import { Technician, TechnicianPayload } from '../../core/models';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { finalize, forkJoin } from 'rxjs';
+import { ManagerOption, Technician } from '../../core/models';
 import { matchesSearch } from '../../core/search';
 import { ApiErrorService } from '../../core/services/api-error.service';
+import { AuthService } from '../../core/services/auth.service';
 import { TechnicianService } from '../../core/services/technician.service';
 
+/**
+ * Equipe técnica. Técnicos são cadastrados em Usuários; nesta tela o administrador altera o
+ * gestor vinculado e o gestor apenas visualiza.
+ */
 @Component({
   selector: 'app-technician',
-  imports: [DatePipe, ReactiveFormsModule],
+  imports: [DatePipe, ReactiveFormsModule, RouterLink],
   templateUrl: './technician.component.html',
   styleUrl: './technician.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TechnicianComponent implements OnInit {
+  protected readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly formBuilder = inject(FormBuilder);
   private readonly technicianService = inject(TechnicianService);
   private readonly apiErrorService = inject(ApiErrorService);
 
-  protected readonly form = this.formBuilder.nonNullable.group({
-    name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(120)]],
-    email: ['', [Validators.required, Validators.email, Validators.maxLength(254)]],
-    specialty: ['', [Validators.maxLength(120)]],
-  });
-  protected readonly searchControl = this.formBuilder.nonNullable.control('');
+  protected readonly searchControl = inject(FormBuilder).nonNullable.control('');
 
   protected readonly technicians = signal<Technician[]>([]);
+  protected readonly managers = signal<ManagerOption[]>([]);
   protected readonly isLoading = signal(true);
-  protected readonly isSaving = signal(false);
+  protected readonly savingManagerId = signal<number | null>(null);
   protected readonly deletingId = signal<number | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
 
   ngOnInit(): void {
-    this.loadTechnicians();
-  }
-
-  protected submit(): void {
-    this.clearFeedback();
-
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      this.errorMessage.set('Revise os campos destacados antes de cadastrar o técnico.');
-      return;
-    }
-
-    const rawValue = this.form.getRawValue();
-    const payload: TechnicianPayload = {
-      name: rawValue.name.trim(),
-      email: rawValue.email.trim().toLocaleLowerCase('pt-BR'),
-      specialty: rawValue.specialty.trim() || undefined,
-    };
-
-    this.isSaving.set(true);
-    this.technicianService
-      .create(payload)
-      .pipe(
-        finalize(() => this.isSaving.set(false)),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe({
-        next: (created) => {
-          this.technicians.update((technicians) => [created, ...technicians]);
-          this.form.reset({ name: '', email: '', specialty: '' });
-          this.successMessage.set(`Técnico “${created.name}” cadastrado com sucesso.`);
-        },
-        error: (error: unknown) => {
-          this.errorMessage.set(
-            this.apiErrorService.toMessage(error, 'Não foi possível cadastrar o técnico.'),
-          );
-        },
-      });
+    this.load();
   }
 
   protected capacityClass(technician: Technician): string {
@@ -100,13 +65,49 @@ export class TechnicianComponent implements OnInit {
     }
 
     return this.technicians().filter((technician) =>
-      matchesSearch(`${technician.name} ${technician.email} ${technician.specialty ?? ''}`, query),
+      matchesSearch(
+        `${technician.name} ${technician.email} ${technician.specialty ?? ''} ${technician.managerName ?? ''}`,
+        query,
+      ),
     );
+  }
+
+  protected changeManager(technician: Technician, event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const managerId = Number(select.value);
+    if (!this.auth.isAdmin() || !managerId || managerId === technician.managerId) {
+      return;
+    }
+
+    this.clearFeedback();
+    this.savingManagerId.set(technician.id);
+    this.technicianService
+      .updateManager(technician.id, managerId)
+      .pipe(
+        finalize(() => this.savingManagerId.set(null)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (updated) => {
+          this.technicians.update((technicians) =>
+            technicians.map((item) => (item.id === updated.id ? updated : item)),
+          );
+          this.successMessage.set(
+            `Técnico “${updated.name}” vinculado ao gestor “${updated.managerName}”.`,
+          );
+        },
+        error: (error: unknown) => {
+          select.value = technician.managerId ? String(technician.managerId) : '';
+          this.errorMessage.set(
+            this.apiErrorService.toMessage(error, 'Não foi possível alterar o gestor vinculado.'),
+          );
+        },
+      });
   }
 
   protected deleteTechnician(technician: Technician): void {
     this.clearFeedback();
-    if (!window.confirm(`Excluir o técnico “${technician.name}”?`)) {
+    if (!window.confirm(`Excluir o técnico “${technician.name}” e o acesso dele?`)) {
       return;
     }
 
@@ -132,18 +133,23 @@ export class TechnicianComponent implements OnInit {
       });
   }
 
-  private loadTechnicians(): void {
+  private load(): void {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.technicianService
-      .list()
+    forkJoin({
+      technicians: this.technicianService.list(),
+      managers: this.technicianService.managers(),
+    })
       .pipe(
         finalize(() => this.isLoading.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (technicians) => this.technicians.set(technicians),
+        next: ({ technicians, managers }) => {
+          this.technicians.set(technicians);
+          this.managers.set(managers);
+        },
         error: (error: unknown) => {
           this.errorMessage.set(
             this.apiErrorService.toMessage(error, 'Não foi possível carregar os técnicos.'),

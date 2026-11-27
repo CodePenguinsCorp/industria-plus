@@ -27,113 +27,115 @@
     <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
   }
 
-  <div class="request-layout">
-    <article class="panel request-form-panel">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title">Abrir chamado</h2>
-        </div>
-      </div>
-
-      @if (!isLoading() && equipments().length === 0) {
-        <div class="empty-state empty-state--compact">
-          <strong>Cadastre um equipamento primeiro</strong>
-          <p>O chamado precisa estar vinculado a um ativo do parque fabril.</p>
-          <a class="button button--secondary button--small" routerLink="/equipamentos">
-            Ir para equipamentos
-          </a>
-        </div>
-      } @else {
-        <form class="form-stack" [formGroup]="createForm" (ngSubmit)="submitRequest()" novalidate>
-          <div class="field">
-            <label for="request-title">Título</label>
-            <input
-              id="request-title"
-              type="text"
-              formControlName="title"
-              maxlength="160"
-              placeholder="Ex.: Prensa com perda de pressão"
-              autocomplete="off"
-            />
-            @if (createForm.controls.title.invalid && createForm.controls.title.touched) {
-              <small class="field-error">Informe um título entre 3 e 160 caracteres.</small>
-            }
+  <div class="request-layout" [class.read-only-layout]="!auth.canManage()">
+    @if (auth.canManage()) {
+      <article class="panel request-form-panel">
+        <div class="section-head">
+          <div>
+            <h2 class="section-title">Abrir chamado</h2>
           </div>
+        </div>
 
-          <div class="form-grid form-grid--two">
+        @if (!isLoading() && equipments().length === 0) {
+          <div class="empty-state empty-state--compact">
+            <strong>Cadastre um equipamento primeiro</strong>
+            <p>O chamado precisa estar vinculado a um ativo do parque fabril.</p>
+            <a class="button button--secondary button--small" routerLink="/equipamentos">
+              Ir para equipamentos
+            </a>
+          </div>
+        } @else {
+          <form class="form-stack" [formGroup]="createForm" (ngSubmit)="submitRequest()" novalidate>
             <div class="field">
-              <label for="request-sector">Setor</label>
-              <select id="request-sector" formControlName="sectorId">
-                <option [ngValue]="0" disabled>Selecione</option>
-                @for (sector of sectors(); track sector.id) {
-                  <option [ngValue]="sector.id">{{ sector.name }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="request-equipment">Equipamento</label>
-              <select id="request-equipment" formControlName="equipmentId">
-                <option [ngValue]="0" disabled>Selecione</option>
-                @for (equipment of availableEquipments; track equipment.id) {
-                  <option [ngValue]="equipment.id">
-                    {{ equipment.assetTag }} — {{ equipment.name }}
-                  </option>
-                }
-              </select>
-              @if (createForm.controls.sectorId.value > 0 && availableEquipments.length === 0) {
-                <small class="field-hint">Não há equipamentos cadastrados neste setor.</small>
+              <label for="request-title">Título</label>
+              <input
+                id="request-title"
+                type="text"
+                formControlName="title"
+                maxlength="160"
+                placeholder="Ex.: Prensa com perda de pressão"
+                autocomplete="off"
+              />
+              @if (createForm.controls.title.invalid && createForm.controls.title.touched) {
+                <small class="field-error">Informe um título entre 3 e 160 caracteres.</small>
               }
             </div>
-          </div>
 
-          <div class="form-grid form-grid--two">
-            <div class="field">
-              <label for="request-type">Tipo</label>
-              <select id="request-type" formControlName="type">
-                @for (option of typeOptions; track option.value) {
-                  <option [value]="option.value">{{ option.label }}</option>
+            <div class="form-grid form-grid--two">
+              <div class="field">
+                <label for="request-sector">Setor</label>
+                <select id="request-sector" formControlName="sectorId">
+                  <option [ngValue]="0" disabled>Selecione</option>
+                  @for (sector of sectors(); track sector.id) {
+                    <option [ngValue]="sector.id">{{ sector.name }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="request-equipment">Equipamento</label>
+                <select id="request-equipment" formControlName="equipmentId">
+                  <option [ngValue]="0" disabled>Selecione</option>
+                  @for (equipment of availableEquipments; track equipment.id) {
+                    <option [ngValue]="equipment.id">
+                      {{ equipment.assetTag }} — {{ equipment.name }}
+                    </option>
+                  }
+                </select>
+                @if (createForm.controls.sectorId.value > 0 && availableEquipments.length === 0) {
+                  <small class="field-hint">Não há equipamentos cadastrados neste setor.</small>
                 }
-              </select>
+              </div>
+            </div>
+
+            <div class="form-grid form-grid--two">
+              <div class="field">
+                <label for="request-type">Tipo</label>
+                <select id="request-type" formControlName="type">
+                  @for (option of typeOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="request-urgency">Urgência</label>
+                <select id="request-urgency" formControlName="urgency">
+                  @for (option of urgencyOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+                <small class="field-hint">Use Alta somente quando houver impacto imediato.</small>
+              </div>
             </div>
 
             <div class="field">
-              <label for="request-urgency">Urgência</label>
-              <select id="request-urgency" formControlName="urgency">
-                @for (option of urgencyOptions; track option.value) {
-                  <option [value]="option.value">{{ option.label }}</option>
-                }
-              </select>
-              <small class="field-hint">Use Alta somente quando houver impacto imediato.</small>
+              <div class="field-meta">
+                <label for="request-description">Descrição</label>
+                <span>{{ descriptionLength }}/2000</span>
+              </div>
+              <textarea
+                id="request-description"
+                formControlName="description"
+                minlength="10"
+                maxlength="2000"
+                rows="6"
+                placeholder="Explique sintomas, impacto e condições observadas."
+              ></textarea>
+              @if (
+                createForm.controls.description.invalid && createForm.controls.description.touched
+              ) {
+                <small class="field-error">Use entre 10 e 2000 caracteres.</small>
+              }
             </div>
-          </div>
 
-          <div class="field">
-            <div class="field-meta">
-              <label for="request-description">Descrição</label>
-              <span>{{ descriptionLength }}/2000</span>
-            </div>
-            <textarea
-              id="request-description"
-              formControlName="description"
-              minlength="10"
-              maxlength="2000"
-              rows="6"
-              placeholder="Explique sintomas, impacto e condições observadas."
-            ></textarea>
-            @if (
-              createForm.controls.description.invalid && createForm.controls.description.touched
-            ) {
-              <small class="field-error">Use entre 10 e 2000 caracteres.</small>
-            }
-          </div>
-
-          <button class="button button--primary" type="submit" [disabled]="isSaving()">
-            {{ isSaving() ? 'Abrindo chamado...' : 'Abrir chamado' }}
-          </button>
-        </form>
-      }
-    </article>
+            <button class="button button--primary" type="submit" [disabled]="isSaving()">
+              {{ isSaving() ? 'Abrindo chamado...' : 'Abrir chamado' }}
+            </button>
+          </form>
+        }
+      </article>
+    }
 
     <article class="panel request-list-panel">
       <div class="section-head">
@@ -192,6 +194,9 @@
                 </div>
               </div>
 
+              <a class="button button--ghost button--small" [routerLink]="['/chamados', request.id]"
+                >Histórico e serviço realizado</a
+              >
               <p class="request-description">{{ request.description }}</p>
 
               <dl class="request-meta">
@@ -218,16 +223,18 @@
                   <span>Técnico responsável</span>
                   <strong>{{ request.technicianName || 'Não atribuído' }}</strong>
                 </div>
-                @if (request.status !== 'CLOSED') {
+                @if (request.status !== 'CLOSED' && auth.canAttend(request.technicianId)) {
                   <div class="action-row">
-                    <button
-                      class="button button--ghost button--small"
-                      type="button"
-                      [disabled]="actionRequestId() !== null"
-                      (click)="openAssignment(request)"
-                    >
-                      {{ request.technicianId ? 'Reatribuir' : 'Atribuir técnico' }}
-                    </button>
+                    @if (auth.canManage()) {
+                      <button
+                        class="button button--ghost button--small"
+                        type="button"
+                        [disabled]="actionRequestId() !== null"
+                        (click)="openAssignment(request)"
+                      >
+                        {{ request.technicianId ? 'Reatribuir' : 'Atribuir técnico' }}
+                      </button>
+                    }
                     @if (request.status === 'OPEN') {
                       <button
                         class="button button--secondary button--small"

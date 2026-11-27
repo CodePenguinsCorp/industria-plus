@@ -32,6 +32,7 @@ import { TechnicianService } from '../../core/services/technician.service';
 type StatusFilter = 'ALL' | MaintenanceRequestStatus;
 type UrgencyFilter = 'ALL' | Urgency;
 
+import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-maintenance-request',
   imports: [DatePipe, ReactiveFormsModule, RouterLink],
@@ -40,6 +41,7 @@ type UrgencyFilter = 'ALL' | Urgency;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MaintenanceRequestComponent implements OnInit {
+  protected readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
   private readonly requestService = inject(MaintenanceRequestService);

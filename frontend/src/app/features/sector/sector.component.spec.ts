@@ -1,3 +1,4 @@
+import { AuthService } from '../../core/services/auth.service';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { Sector } from '../../core/models';
@@ -26,7 +27,10 @@ describe('SectorComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [SectorComponent],
-      providers: [{ provide: SectorService, useValue: sectorService }],
+      providers: [
+        { provide: AuthService, useValue: { canManage: () => true, canAttend: () => true } },
+        { provide: SectorService, useValue: sectorService },
+      ],
     }).compileComponents();
   });
 

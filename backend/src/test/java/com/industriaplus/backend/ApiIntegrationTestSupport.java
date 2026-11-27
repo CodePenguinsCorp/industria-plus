@@ -25,6 +25,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 abstract class ApiIntegrationTestSupport {
 
     private static final AtomicLong SEQUENCE = new AtomicLong();
+    protected static final String TEMPORARY_PASSWORD = "SenhaProvisoria123!";
+
+    private Long baseManagerId;
 
     @Autowired
     protected MockMvc mockMvc;
@@ -35,12 +38,26 @@ abstract class ApiIntegrationTestSupport {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private org.springframework.web.context.WebApplicationContext webContext;
+
     @BeforeEach
     void cleanDatabase() {
+        baseManagerId = null;
+        jdbcTemplate.update("delete from replaced_parts");
+        jdbcTemplate.update("delete from maintenance_history");
         jdbcTemplate.update("delete from maintenance_requests");
+        jdbcTemplate.update("update app_users set manager_id = null");
+        jdbcTemplate.update("delete from app_users");
         jdbcTemplate.update("delete from equipments");
-        jdbcTemplate.update("delete from technicians");
         jdbcTemplate.update("delete from sectors");
+        jdbcTemplate.update("insert into app_users(name,email,password_hash,role) values(?,?,?,?)", "Administrador de teste", "admin@test.local", new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("SenhaDeTeste123!"), "ADMIN");
+        mockMvc = org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup(webContext)
+            .apply(org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity())
+            .defaultRequest(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/")
+                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin@test.local").roles("ADMIN"))
+                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf()))
+            .build();
     }
 
     protected long createSector(String name) throws Exception {
@@ -71,15 +88,39 @@ abstract class ApiIntegrationTestSupport {
         return body(result).get("id").asLong();
     }
 
+    /** Técnicos são usuários com perfil TECHNICIAN, vinculados a um gestor. */
     protected long createTechnician(String email) throws Exception {
-        MvcResult result = mockMvc.perform(post("/api/technicians")
+        if (baseManagerId == null) {
+            baseManagerId = createManager("gestor.base@test.local");
+        }
+        return createTechnician(email, baseManagerId);
+    }
+
+    protected long createTechnician(String email, long managerId) throws Exception {
+        return createUser(Map.of(
+            "name", "Técnico de manutenção",
+            "email", email,
+            "password", TEMPORARY_PASSWORD,
+            "role", "TECHNICIAN",
+            "managerId", managerId,
+            "specialty", "Mecânica"
+        ));
+    }
+
+    protected long createManager(String email) throws Exception {
+        return createUser(Map.of(
+            "name", "Gestor de manutenção",
+            "email", email,
+            "password", TEMPORARY_PASSWORD,
+            "role", "MANAGER"
+        ));
+    }
+
+    private long createUser(Map<String, Object> payload) throws Exception {
+        MvcResult result = mockMvc.perform(post("/api/users")
                 .contextPath("/api")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(json(Map.of(
-                    "name", "Técnico de manutenção",
-                    "email", email,
-                    "specialty", "Mecânica"
-                ))))
+                .content(json(payload)))
             .andExpect(status().isCreated())
             .andReturn();
         return body(result).get("id").asLong();
