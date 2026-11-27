@@ -104,6 +104,35 @@ describe('MaintenanceRequestComponent', () => {
     expect(component.createForm.controls.description.touched).toBe(true);
   });
 
+  it('shows the last update on load and after assignment and status changes', () => {
+    requestService.list.mockReturnValue(of([{ ...request, updatedAt: '2026-08-28T10:30:00' }]));
+    const fixture = TestBed.createComponent(MaintenanceRequestComponent);
+    const component = fixture.componentInstance as any;
+    fixture.detectChanges();
+    const lastUpdate = () => {
+      const metadata: HTMLElement = fixture.nativeElement.querySelector('.request-meta');
+      const label = Array.from(metadata.querySelectorAll('dt')).find(
+        (item) => item.textContent?.trim() === 'Atualizado em',
+      );
+      return label?.nextElementSibling?.textContent?.trim();
+    };
+    expect(lastUpdate()).toBe('28/08/2026 10:30');
+
+    requestService.list.mockReturnValue(of([{ ...request, updatedAt: '2026-08-28T11:00:00' }]));
+    component.openAssignment(request);
+    component.assignmentForm.controls.technicianId.setValue(3);
+    component.assignTechnician();
+    fixture.detectChanges();
+    expect(lastUpdate()).toBe('28/08/2026 11:00');
+
+    requestService.list.mockReturnValue(
+      of([{ ...request, status: 'CLOSED', updatedAt: '2026-08-28T12:00:00' }]),
+    );
+    component.changeStatus(request, 'CLOSED');
+    fixture.detectChanges();
+    expect(lastUpdate()).toBe('28/08/2026 12:00');
+  });
+
   it('sends a normalized payload when opening a valid request', () => {
     const fixture = TestBed.createComponent(MaintenanceRequestComponent);
     const component = fixture.componentInstance as any;
