@@ -100,9 +100,12 @@ class PasswordChangeRequiredFilterTest {
     }
 
     private void login(String email, boolean mustChangePassword) {
+        AppUser user = com.industriaplus.backend.UnitFixtures.set(
+            new AppUser("Usuário", email, "hash", Role.TECHNICIAN, null, null, mustChangePassword),
+            "id", 1L);
         SecurityContextHolder.getContext()
-                .setAuthentication(new TestingAuthenticationToken(email, null, "ROLE_TECHNICIAN"));
-        when(users.findMustChangePasswordByEmail(email)).thenReturn(Optional.of(mustChangePassword));
+                .setAuthentication(new TestingAuthenticationToken(new SessionUser(user), null, "ROLE_TECHNICIAN"));
+        when(users.findByEmailIgnoreCase(email)).thenReturn(Optional.of(user));
     }
 
     private static HttpServletRequest request(String uri) {

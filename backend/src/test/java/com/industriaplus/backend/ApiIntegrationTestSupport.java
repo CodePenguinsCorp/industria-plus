@@ -41,6 +41,14 @@ abstract class ApiIntegrationTestSupport {
     @Autowired
     private org.springframework.web.context.WebApplicationContext webContext;
 
+    @Autowired
+    private org.springframework.security.core.userdetails.UserDetailsService userDetails;
+
+    protected org.springframework.test.web.servlet.request.RequestPostProcessor authenticatedUser(String email) {
+        return org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+            .user(userDetails.loadUserByUsername(email));
+    }
+
     @BeforeEach
     void cleanDatabase() {
         baseManagerId = null;
@@ -55,7 +63,7 @@ abstract class ApiIntegrationTestSupport {
         mockMvc = org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup(webContext)
             .apply(org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity())
             .defaultRequest(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/")
-                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin@test.local").roles("ADMIN"))
+                .with(authenticatedUser("admin@test.local"))
                 .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf()))
             .build();
     }

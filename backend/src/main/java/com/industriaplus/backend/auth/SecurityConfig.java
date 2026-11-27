@@ -27,12 +27,7 @@ public class SecurityConfig {
     UserDetailsService userDetailsService(UserRepository users) {
         return email ->
                 users.findByEmailIgnoreCase(email.trim())
-                        .map(
-                                u ->
-                                        User.withUsername(u.getEmail())
-                                                .password(u.getPasswordHash())
-                                                .roles(u.getRole().name())
-                                                .build())
+                        .map(SessionUser::new)
                         .orElseThrow(() -> new UsernameNotFoundException("Credenciais inválidas"));
     }
 

@@ -64,8 +64,7 @@ class EquipmentEvolutionIntegrationTest extends ApiIntegrationTestSupport {
         long equipment = createEquipment(createSector("Permissões"), "PERM-01");
         createTechnician("tech.evolution@test.local");
         jdbc.update("update app_users set must_change_password=false where email='tech.evolution@test.local'");
-        var tech = org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
-            .user("tech.evolution@test.local").roles("TECHNICIAN");
+        var tech = authenticatedUser("tech.evolution@test.local");
         mockMvc.perform(get("/api/equipments/{id}/reliability", equipment).contextPath("/api").with(tech))
             .andExpect(status().isOk());
         for (String endpoint : java.util.List.of("reliability", "preventive-plan")) {

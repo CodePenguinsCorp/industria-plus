@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -48,21 +49,32 @@ public class PasswordChangeRequiredFilter extends OncePerRequestFilter {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null
                 && auth.isAuthenticated()
-                && !(auth instanceof AnonymousAuthenticationToken)
-                && !ALLOWED.contains(path(request))
-                && users.findMustChangePasswordByEmail(auth.getName()).orElse(false)) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentType("application/json");
-            json.writeValue(
-                    response.getOutputStream(),
-                    Map.of(
-                            "status",
-                            403,
-                            "code",
-                            CODE,
-                            "message",
-                            "Defina uma nova senha para continuar usando o sistema."));
-            return;
+                && !(auth instanceof AnonymousAuthenticationToken)) {
+            AppUser user = users.findByEmailIgnoreCase(auth.getName()).orElse(null);
+            if (user == null || !(auth.getPrincipal() instanceof SessionUser principal)
+                    || !principal.matches(user)) {
+                new SecurityContextLogoutHandler().logout(request, response, auth);
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                json.writeValue(response.getOutputStream(), Map.of(
+                    "status", 401, "code", "UNAUTHENTICATED",
+                    "message", "Sessão inválida. Entre novamente."));
+                return;
+            }
+            if (!ALLOWED.contains(path(request)) && user.isMustChangePassword()) {
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                response.setContentType("application/json");
+                json.writeValue(
+                        response.getOutputStream(),
+                        Map.of(
+                                "status",
+                                403,
+                                "code",
+                                CODE,
+                                "message",
+                                "Defina uma nova senha para continuar usando o sistema."));
+                return;
+            }
         }
         chain.doFilter(request, response);
     }
