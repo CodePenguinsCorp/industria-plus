@@ -10,4 +10,8 @@ public record UserCreateRequest(
         @NotNull Role role,
         @Positive(message = "O gestor informado é inválido.") Long managerId,
         @Size(max = 120, message = "A especialidade deve ter no máximo 120 caracteres.")
-                String specialty) {}
+                String specialty) {
+    public UserCreateRequest {
+        email = email == null ? null : email.strip();
+    }
+}
