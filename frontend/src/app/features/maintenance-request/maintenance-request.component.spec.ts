@@ -1,3 +1,5 @@
+import { provideRouter } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
@@ -31,6 +33,8 @@ describe('MaintenanceRequestComponent', () => {
     name: 'Ana Martins',
     email: 'ana@industria.com.br',
     specialty: 'Hidráulica',
+    managerId: 10,
+    managerName: 'Gestor Central',
     highUrgencyOpenRequests: 2,
     createdAt: '2026-08-28T08:20:00',
   };
@@ -77,6 +81,8 @@ describe('MaintenanceRequestComponent', () => {
     await TestBed.configureTestingModule({
       imports: [MaintenanceRequestComponent],
       providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: { canManage: () => true, canAttend: () => true } },
         { provide: MaintenanceRequestService, useValue: requestService },
         { provide: EquipmentService, useValue: equipmentService },
         { provide: SectorService, useValue: sectorService },

@@ -38,6 +38,11 @@ public class MaintenanceRequestController {
         return maintenanceRequestService.list(status, urgency);
     }
 
+    @GetMapping("/{id}")
+    public MaintenanceRequestResponse detail(@PathVariable Long id) {
+        return maintenanceRequestService.detail(id);
+    }
+
     @PatchMapping("/{id}/assignment")
     public MaintenanceRequestResponse assign(
         @PathVariable Long id,

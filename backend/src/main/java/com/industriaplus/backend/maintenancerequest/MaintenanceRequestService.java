@@ -5,7 +5,7 @@ import com.industriaplus.backend.equipment.EquipmentService;
 import com.industriaplus.backend.error.BusinessException;
 import com.industriaplus.backend.sector.Sector;
 import com.industriaplus.backend.sector.SectorService;
-import com.industriaplus.backend.technician.Technician;
+import com.industriaplus.backend.auth.AppUser;
 import com.industriaplus.backend.technician.TechnicianService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,12 +23,15 @@ public class MaintenanceRequestService {
 
     private static final long MAX_HIGH_URGENCY_OPEN_REQUESTS = 2;
 
+    private final com.industriaplus.backend.auth.AccessService access;
+    private final com.industriaplus.backend.history.HistoryService history;
     private final MaintenanceRequestRepository maintenanceRequestRepository;
     private final EquipmentService equipmentService;
     private final SectorService sectorService;
     private final TechnicianService technicianService;
 
     public MaintenanceRequestResponse create(MaintenanceRequestCreateRequest request) {
+        access.requireManager();
         Equipment equipment = equipmentService.getRequired(request.equipmentId());
         Sector sector = sectorService.getRequired(request.sectorId());
 
@@ -48,9 +51,9 @@ public class MaintenanceRequestService {
             request.type(),
             request.urgency()
         );
-        return MaintenanceRequestResponse.from(
-            maintenanceRequestRepository.save(maintenanceRequest)
-        );
+        maintenanceRequestRepository.saveAndFlush(maintenanceRequest);
+        history.record(maintenanceRequest, "CREATED", "Chamado aberto.", null, null, null);
+        return MaintenanceRequestResponse.from(maintenanceRequest);
     }
 
     @Transactional(readOnly = true)
@@ -77,10 +80,17 @@ public class MaintenanceRequestService {
             .toList();
     }
 
+    @Transactional(readOnly = true)
+    public MaintenanceRequestResponse detail(Long id) {
+        return MaintenanceRequestResponse.from(maintenanceRequestRepository.findById(id)
+            .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "MAINTENANCE_REQUEST_NOT_FOUND", "Chamado não encontrado.")));
+    }
+
     public MaintenanceRequestResponse assign(
         Long requestId,
         MaintenanceRequestAssignmentRequest assignment
     ) {
+        access.requireManager();
         MaintenanceRequest request = getRequiredForUpdate(requestId);
         if (request.getStatus() == MaintenanceRequestStatus.CLOSED) {
             throw new BusinessException(
@@ -90,7 +100,7 @@ public class MaintenanceRequestService {
             );
         }
 
-        Technician technician = technicianService.getRequiredForUpdate(
+        AppUser technician = technicianService.getRequiredForUpdate(
             assignment.technicianId()
         );
         if (request.getTechnician() != null
@@ -99,7 +109,10 @@ public class MaintenanceRequestService {
         }
 
         validateHighUrgencyLimit(request, technician);
+        Long previousId = request.getTechnician() == null ? null : request.getTechnician().getId();
+        String previousName = request.getTechnician() == null ? null : request.getTechnician().getName();
         request.assignTo(technician);
+        history.record(request, "ASSIGNMENT", "Responsável alterado.", request.getStatus().name(), previousId, previousName);
         return MaintenanceRequestResponse.from(
             maintenanceRequestRepository.saveAndFlush(request)
         );
@@ -110,6 +123,7 @@ public class MaintenanceRequestService {
         MaintenanceRequestStatusRequest statusRequest
     ) {
         MaintenanceRequest request = getRequiredForUpdate(requestId);
+        access.requireAttendance(request);
         MaintenanceRequestStatus targetStatus = statusRequest.status();
         if (request.getStatus() == MaintenanceRequestStatus.CLOSED) {
             throw new BusinessException(
@@ -127,7 +141,11 @@ public class MaintenanceRequestService {
             );
         }
 
+        String previousStatus = request.getStatus().name();
         request.transitionTo(targetStatus);
+        history.record(request, "STATUS", "Status alterado.", previousStatus,
+            request.getTechnician() == null ? null : request.getTechnician().getId(),
+            request.getTechnician() == null ? null : request.getTechnician().getName());
         return MaintenanceRequestResponse.from(
             maintenanceRequestRepository.saveAndFlush(request)
         );
@@ -135,7 +153,7 @@ public class MaintenanceRequestService {
 
     private void validateHighUrgencyLimit(
         MaintenanceRequest request,
-        Technician technician
+        AppUser technician
     ) {
         if (request.getUrgency() != Urgency.HIGH) {
             return;

@@ -18,6 +18,7 @@ import { MaintenanceRequestService } from '../../core/services/maintenance-reque
 import { SectorService } from '../../core/services/sector.service';
 import { TechnicianService } from '../../core/services/technician.service';
 
+import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-home',
   imports: [DatePipe, RouterLink],
@@ -25,6 +26,7 @@ import { TechnicianService } from '../../core/services/technician.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
+  protected readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly equipmentService = inject(EquipmentService);
   private readonly sectorService = inject(SectorService);

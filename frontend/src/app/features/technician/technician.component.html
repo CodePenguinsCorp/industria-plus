@@ -4,7 +4,7 @@
       <span class="page-eyebrow">Equipe de manutenção</span>
       <h1 class="page-title">Técnicos</h1>
       <p class="page-subtitle">
-        Mantenha a equipe disponível para atribuição e acompanhe a carga de chamados críticos.
+        Acompanhe a carga de chamados críticos e o gestor responsável por cada técnico.
       </p>
     </div>
     <span class="page-hero__meta">Limite Alta: 2 abertos por técnico</span>
@@ -17,118 +17,100 @@
     <div class="alert alert--error" role="alert">{{ errorMessage() }}</div>
   }
 
-  <div class="technician-layout">
-    <article class="panel">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title">Novo técnico</h2>
-        </div>
-      </div>
-
-      <form class="form-stack" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-        <div class="field">
-          <label for="technician-name">Nome</label>
-          <input
-            id="technician-name"
-            type="text"
-            formControlName="name"
-            maxlength="120"
-            placeholder="Ex.: Ana Martins"
-            autocomplete="name"
-          />
-          @if (form.controls.name.invalid && form.controls.name.touched) {
-            <small class="field-error">Informe um nome entre 2 e 120 caracteres.</small>
+  <article class="panel panel--wide">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Equipe cadastrada</h2>
+        <p class="section-subtitle">
+          @if (auth.isAdmin()) {
+            Novos técnicos são cadastrados em
+            <a class="text-link" routerLink="/usuarios">Usuários</a>. Altere o gestor vinculado
+            diretamente na lista.
+          } @else {
+            Visualização da equipe e dos gestores vinculados.
           }
-        </div>
-
-        <div class="field">
-          <label for="technician-email">E-mail</label>
-          <input
-            id="technician-email"
-            type="email"
-            formControlName="email"
-            maxlength="254"
-            placeholder="ana@industria.com.br"
-            autocomplete="email"
-          />
-          @if (form.controls.email.invalid && form.controls.email.touched) {
-            <small class="field-error">Informe um e-mail válido.</small>
-          }
-        </div>
-
-        <div class="field">
-          <label for="technician-specialty">Especialidade</label>
-          <input
-            id="technician-specialty"
-            type="text"
-            formControlName="specialty"
-            maxlength="120"
-            placeholder="Ex.: Mecânica hidráulica"
-            autocomplete="off"
-          />
-        </div>
-
-        <button class="button button--primary" type="submit" [disabled]="isSaving()">
-          {{ isSaving() ? 'Cadastrando...' : 'Cadastrar técnico' }}
-        </button>
-      </form>
-    </article>
-
-    <article class="panel panel--wide">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title">Equipe cadastrada</h2>
-        </div>
-        <label class="catalog-search">
-          <span class="visually-hidden">Buscar técnico</span>
-          <span aria-hidden="true">⌕</span>
-          <input
-            type="search"
-            [formControl]="searchControl"
-            placeholder="Buscar técnico..."
-            autocomplete="off"
-          />
-        </label>
+        </p>
       </div>
+      <label class="catalog-search">
+        <span class="visually-hidden">Buscar técnico</span>
+        <span aria-hidden="true">⌕</span>
+        <input
+          type="search"
+          [formControl]="searchControl"
+          placeholder="Buscar técnico..."
+          autocomplete="off"
+        />
+      </label>
+    </div>
 
-      @if (isLoading()) {
-        <div class="loading-state" role="status">Carregando técnicos...</div>
-      } @else if (technicians().length === 0) {
-        <div class="empty-state">
-          <strong>Nenhum técnico cadastrado</strong>
-          <p>Cadastre a equipe para começar a distribuir os chamados.</p>
-        </div>
-      } @else if (filteredTechnicians.length === 0) {
-        <div class="empty-state empty-state--compact">
-          <strong>Nenhum técnico corresponde à busca</strong>
-          <p>Pesquise por nome, e-mail ou especialidade.</p>
-        </div>
-      } @else {
-        <div class="table-shell">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th scope="col">Técnico</th>
-                <th scope="col">Especialidade</th>
-                <th scope="col">Carga Alta</th>
-                <th scope="col">Cadastro</th>
+    @if (isLoading()) {
+      <div class="loading-state" role="status">Carregando técnicos...</div>
+    } @else if (technicians().length === 0) {
+      <div class="empty-state">
+        <strong>Nenhum técnico cadastrado</strong>
+        <p>Técnicos são cadastrados pelo administrador em Usuários, com o perfil Técnico.</p>
+      </div>
+    } @else if (filteredTechnicians.length === 0) {
+      <div class="empty-state empty-state--compact">
+        <strong>Nenhum técnico corresponde à busca</strong>
+        <p>Pesquise por nome, e-mail, especialidade ou gestor.</p>
+      </div>
+    } @else {
+      <div class="table-shell">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th scope="col">Técnico</th>
+              <th scope="col">Especialidade</th>
+              <th scope="col">Gestor vinculado</th>
+              <th scope="col">Carga Alta</th>
+              <th scope="col">Cadastro</th>
+              @if (auth.isAdmin()) {
                 <th scope="col">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (technician of filteredTechnicians; track technician.id) {
-                <tr>
-                  <td>
-                    <strong>{{ technician.name }}</strong>
-                    <small class="table-note">{{ technician.email }}</small>
-                  </td>
-                  <td>{{ technician.specialty || 'Generalista' }}</td>
-                  <td>
-                    <span class="capacity-pill" [class]="capacityClass(technician)">
-                      {{ technician.highUrgencyOpenRequests }}/2 abertos
-                    </span>
-                  </td>
-                  <td>{{ technician.createdAt | date: 'dd/MM/yyyy' }}</td>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (technician of filteredTechnicians; track technician.id) {
+              <tr>
+                <td>
+                  <strong>{{ technician.name }}</strong>
+                  <small class="table-note">{{ technician.email }}</small>
+                </td>
+                <td>{{ technician.specialty || 'Generalista' }}</td>
+                <td>
+                  <label class="visually-hidden" [for]="'manager-' + technician.id">
+                    Gestor vinculado de {{ technician.name }}
+                  </label>
+                  <select
+                    class="manager-select"
+                    [id]="'manager-' + technician.id"
+                    [disabled]="!auth.isAdmin() || savingManagerId() !== null"
+                    [title]="
+                      auth.isAdmin() ? 'Alterar gestor vinculado' : 'Somente o administrador altera'
+                    "
+                    (change)="changeManager(technician, $event)"
+                  >
+                    @if (technician.managerId === null) {
+                      <option value="" selected disabled>Sem gestor vinculado</option>
+                    }
+                    @for (manager of managers(); track manager.id) {
+                      <option [value]="manager.id" [selected]="manager.id === technician.managerId">
+                        {{ manager.name }}
+                      </option>
+                    }
+                  </select>
+                  @if (savingManagerId() === technician.id) {
+                    <small class="table-note">Salvando...</small>
+                  }
+                </td>
+                <td>
+                  <span class="capacity-pill" [class]="capacityClass(technician)">
+                    {{ technician.highUrgencyOpenRequests }}/2 abertos
+                  </span>
+                </td>
+                <td>{{ technician.createdAt | date: 'dd/MM/yyyy' }}</td>
+                @if (auth.isAdmin()) {
                   <td>
                     <button
                       class="button button--ghost button--small"
@@ -139,12 +121,12 @@
                       {{ deletingId() === technician.id ? 'Excluindo...' : 'Excluir' }}
                     </button>
                   </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      }
-    </article>
-  </div>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </article>
 </section>

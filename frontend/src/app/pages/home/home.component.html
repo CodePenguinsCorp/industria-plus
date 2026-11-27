@@ -8,7 +8,11 @@
       </p>
       <div class="operations-hero__actions">
         <a class="button button--primary" routerLink="/chamados">
-          <span aria-hidden="true">+</span> Abrir novo chamado
+          @if (auth.canManage()) {
+            <span aria-hidden="true">+</span> Abrir novo chamado
+          } @else {
+            Consultar chamados
+          }
         </a>
         <a class="hero-link" routerLink="/chamados">Consultar fila <span>→</span></a>
       </div>

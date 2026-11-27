@@ -1,12 +1,31 @@
-.technician-layout {
-  display: grid;
-  grid-template-columns: minmax(300px, 0.78fr) minmax(0, 1.45fr);
-  gap: 24px;
-  align-items: start;
+.manager-select {
+  min-width: 180px;
+  max-width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  color: var(--text-strong);
+  background: #fff;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
-@media (max-width: 940px) {
-  .technician-layout {
-    grid-template-columns: 1fr;
-  }
+.manager-select:not(:disabled):hover {
+  border-color: #9ba9ba;
+}
+
+.manager-select:focus {
+  border-color: var(--accent-copper);
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.11);
+}
+
+.manager-select:disabled {
+  border-color: #e2e8f0;
+  color: #475569;
+  background: #f1f5f9;
+  cursor: default;
+  opacity: 1;
 }

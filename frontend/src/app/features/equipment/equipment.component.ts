@@ -17,6 +17,7 @@ import { ApiErrorService } from '../../core/services/api-error.service';
 import { EquipmentService } from '../../core/services/equipment.service';
 import { SectorService } from '../../core/services/sector.service';
 
+import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-equipment',
   imports: [DatePipe, ReactiveFormsModule, RouterLink],
@@ -25,6 +26,7 @@ import { SectorService } from '../../core/services/sector.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EquipmentComponent implements OnInit {
+  protected readonly auth = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
   private readonly equipmentService = inject(EquipmentService);
