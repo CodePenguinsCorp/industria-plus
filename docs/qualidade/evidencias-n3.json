@@ -1,0 +1,190 @@
+{
+  "date": "2026-11-24",
+  "branch": "feature/n3-finalizacao",
+  "base_commit": "96e5d4d4066f7cf18903ed523af5b0600b64e33d",
+  "received_commit": "a5a6f7b",
+  "implementation_commit": "7f94fd8c312c96f7d50d589a82e0086859703f59",
+  "received_zip_sha256": "8A6AD5E3AB574C7C20BC6D2C1DC661EB1BE46782E2C5691161DF4AE923329EED",
+  "backend_h2": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "suites": [
+      {
+        "suite": "com.industriaplus.backend.auth.AccessServiceTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.auth.PasswordChangeRequiredFilterTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.auth.UserServiceTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.CatalogApiIntegrationTest",
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.EquipmentEvolutionIntegrationTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.HealthControllerIntegrationTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.history.HistoryServiceTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.InitialAdminIntegrationTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.maintenancerequest.MaintenanceRequestServiceTest",
+        "tests": 15,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.maintenancerequest.MaintenanceRequestStatusTest",
+        "tests": 12,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.MaintenanceRequestApiIntegrationTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.MaintenanceRequestAssignmentIntegrationTest",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.MigrationCompatibilityTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.PreventiveConcurrencyIntegrationTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.RestExceptionHandlerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.SecurityAndHistoryIntegrationTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "suite": "com.industriaplus.backend.technician.TechnicianServiceTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "tests": 99
+  },
+  "backend_mysql": {
+    "concurrent_assignment": "one 200, one 409, final workload 2",
+    "version": "8.4.10",
+    "errors": 0,
+    "tests": 99,
+    "failures": 0,
+    "skipped": 0,
+    "concurrent_preventive_generation": "one request and one history event"
+  },
+  "mysql_upgrade": {
+    "to": "V5",
+    "from": "V2 with existing equipment, technician and request",
+    "passed": 1,
+    "tests": 1,
+    "links_preserved": true
+  },
+  "frontend": {
+    "files": 12,
+    "passed": 38,
+    "tests": 38
+  },
+  "runtime": {
+    "docker_java": "17.0.21.1",
+    "test_jdk": "22.0.2 compiling release 17",
+    "timezone": "America/Sao_Paulo"
+  },
+  "browser": {
+    "fixtures": "fictitious, isolated validation database",
+    "login": "administrator",
+    "screenshot": "evidencias/mtbf-preventivas.png",
+    "mtbf": "100 / 2 = 50 hours",
+    "scheduler": "generated another due occurrence in background",
+    "overdue_plan": "request generated and history refreshed without reload"
+  },
+  "persistence": {
+    "passed": true,
+    "volume": "industria-plus-n3-validation_validation_mysql",
+    "before": "4:100.00:2026-12-01:QA-N3-01",
+    "after": "4:100.00:2026-12-01:QA-N3-01"
+  },
+  "other_checks": [
+    "frontend format",
+    "frontend build",
+    "Docker image build",
+    "local Compose config",
+    "production Compose config",
+    "PowerShell and shell environment generators"
+  ],
+  "pending_checks": [
+    "manual walkthrough with all roles",
+    "backup restoration",
+    "production HTTPS",
+    "artificial infrastructure failure injection",
+    "PO/QA acceptance"
+  ]
+}

@@ -1,8 +1,33 @@
 # Cobertura de testes
 
+As novas execuções por branch, em 27/11/2026, estão nos arquivos erificacao-*.json e na [revisão de PO/QA](revisao-po-qa.md). Os registros abaixo preservam suas datas originais.
+
 Este documento reúne os registros de cobertura de testes por release do Industria Plus. Cada
 release deve possuir uma seção própria, seguindo o mesmo modelo, para preservar o histórico das
 medições sem misturar resultados de entregas diferentes.
+
+## Retomada N3 — 24/11/2026
+
+Estado local em `feature/n3-finalizacao`, baseado em `96e5d4d` e no ZIP recebido pelo Teams.
+
+| Verificação | Executados | Aprovados | Falhas/erros | Ignorados |
+| --- | ---: | ---: | ---: | ---: |
+| Backend, Maven/JUnit, H2 | 99 | 99 | 0 | 0 |
+| Mesma suíte backend em MySQL 8.4 | 99 | 99 | 0 | 0 |
+| Migração N1 até V5 em MySQL, execução dedicada | 1 | 1 | 0 | 0 |
+| Frontend, Angular/Vitest | 38 | 38 | 0 | 0 |
+
+Os testes recebidos de normalização de usuário detectaram uma regressão de e-mail, corrigida antes
+da execução final. Foram adicionados um teste de interface para `updatedAt` e dois testes de
+integração para o bootstrap do administrador. Os cenários novos foram observados falhando antes
+das correções correspondentes.
+
+Formatação e build do frontend, configurações Compose e geradores de ambiente de produção também
+foram verificados. Não foram recalculados percentuais de cobertura de linhas, requisitos ou aceite.
+MTBF e preventivas também foram verificados no navegador, e migração, concorrência e persistência
+foram verificadas em MySQL. O aceite do PO/QA segue pendente. A suíte backend aparece duas vezes
+por ter sido executada em dois bancos; não são 198 cenários distintos. Consulte o [relatório da Etapa 3](relatorio-etapa-3.md) e o
+[resumo das evidências](evidencias-n3.json).
 
 ## Registro da Release N1
 
