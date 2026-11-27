@@ -1,0 +1,71 @@
+<div class="page-stack">
+  @if (error()) {
+    <div class="alert alert--error" role="alert">{{ error() }}</div>
+  }
+  @if (success()) {
+    <div class="alert alert--success" role="status">{{ success() }}</div>
+  }
+  @if (loading()) {
+    <div class="loading-state" role="status">Carregando indicadores...</div>
+  } @else {
+    <article class="panel">
+      <h2 class="section-title">Confiabilidade e MTBF</h2>
+      @if (reliability(); as metric) {
+        @if (metric.state === 'CALCULATED') {
+          <p class="page-title">{{ metric.mtbfHours | number: '1.0-2' }} h</p>
+          <p>
+            {{ metric.operatingHours | number: '1.0-2' }} horas de operação /
+            {{ metric.failureCount }} falhas corretivas.
+          </p>
+        } @else if (metric.state === 'NO_FAILURES') {
+          <p>
+            <strong>Sem falhas registradas no período.</strong> O MTBF ainda não pode ser calculado.
+          </p>
+        } @else {
+          <p>
+            <strong>Dados insuficientes.</strong> Informe as horas reais de operação no período
+            observado.
+          </p>
+        }
+        @if (metric.startDate) {
+          <p class="field-hint">
+            Período: {{ metric.startDate | date: 'dd/MM/yyyy' }} a
+            {{ metric.endDate | date: 'dd/MM/yyyy' }}. Cada chamado corretivo aberto nesse período
+            representa uma falha.
+          </p>
+        }
+      }
+      @if (auth.canManage()) {
+        <form class="form-stack" [formGroup]="reliabilityForm" (ngSubmit)="saveReliability()">
+          <div class="form-grid form-grid--two">
+            <div class="field">
+              <label for="observation-start">Início do período</label
+              ><input id="observation-start" type="date" formControlName="startDate" required />
+            </div>
+            <div class="field">
+              <label for="observation-end">Fim do período</label
+              ><input id="observation-end" type="date" formControlName="endDate" required />
+            </div>
+          </div>
+          <div class="field">
+            <label for="operating-hours">Horas reais de operação no período</label
+            ><input
+              id="operating-hours"
+              type="number"
+              min="0.01"
+              step="0.01"
+              formControlName="operatingHours"
+              required
+            /><small class="field-hint"
+              >Use horas medidas ou registradas pela operação. Salvar substitui a medição atual
+              deste equipamento.</small
+            >
+          </div>
+          <button class="button button--primary button--small" type="submit" [disabled]="saving()">
+            Salvar medição
+          </button>
+        </form>
+      }
+    </article>
+  }
+</div>

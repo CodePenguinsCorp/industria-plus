@@ -76,6 +76,8 @@ public class SecurityConfig {
                                         .hasAnyRole("ADMIN", "MANAGER")
                                         .requestMatchers(HttpMethod.PATCH, "/technicians/*/manager")
                                         .hasRole("ADMIN")
+                                        .requestMatchers(HttpMethod.PUT, "/equipments/*/reliability")
+                                        .hasAnyRole("ADMIN", "MANAGER")
                                         .requestMatchers(HttpMethod.DELETE, "/technicians/**")
                                         .hasRole("ADMIN")
                                         .requestMatchers(

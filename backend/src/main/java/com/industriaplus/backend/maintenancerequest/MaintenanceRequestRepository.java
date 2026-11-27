@@ -49,6 +49,14 @@ public interface MaintenanceRequestRepository extends JpaRepository<MaintenanceR
     boolean existsByTechnicianId(Long technicianId);
 
     @Query("""
+        select count(r) from MaintenanceRequest r
+        where r.equipment.id = :equipmentId and r.type = :type
+          and r.createdAt >= :start and r.createdAt < :end
+        """)
+    long countFailures(@Param("equipmentId") Long equipmentId, @Param("type") MaintenanceType type,
+        @Param("start") java.time.LocalDateTime start, @Param("end") java.time.LocalDateTime end);
+
+    @Query("""
         select new com.industriaplus.backend.technician.TechnicianWorkload(
             request.technician.id,
             count(request)
