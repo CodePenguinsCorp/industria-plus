@@ -1,0 +1,184 @@
+{
+  "date": "2026-11-27",
+  "branches": [
+    {
+      "branch_head": "a255daf1fe882f99992a6629137b403996be546f",
+      "branch": "feature/acesso-e-historico",
+      "topic": "acesso",
+      "tested_commit": "4a12a1882e77d126a5d97d04f2420f26c62d5dca",
+      "checks": [
+        {
+          "exit_code": 0,
+          "result": "[INFO] Tests run: 92, Failures: 0, Errors: 0, Skipped: 0",
+          "name": "h2"
+        },
+        {
+          "exit_code": 0,
+          "result": "Test Files  10 passed (10); Tests  33 passed (33)",
+          "name": "frontend"
+        },
+        {
+          "exit_code": 0,
+          "result": "Exit code 0",
+          "name": "format"
+        },
+        {
+          "exit_code": 0,
+          "result": "Exit code 0",
+          "name": "build"
+        },
+        {
+          "exit_code": 0,
+          "result": "Exit code 0",
+          "name": "compose-local"
+        },
+        {
+          "exit_code": 0,
+          "result": "Exit code 0",
+          "name": "compose-prod"
+        }
+      ]
+    },
+    {
+      "branch_head": "c2085fb1e270e68e5cafe5e349950a16bf3fe17d",
+      "branch": "fix/atribuicao-e-atualizacao",
+      "topic": "chamados",
+      "tested_commit": "e0978205bd0bce497c8100196356c7dc6db91066",
+      "checks": [
+        {
+          "result": "[INFO] Tests run: 92, Failures: 0, Errors: 0, Skipped: 0",
+          "name": "h2",
+          "exit_code": 0
+        },
+        {
+          "result": "[INFO] Tests run: 92, Failures: 0, Errors: 0, Skipped: 0",
+          "name": "mysql",
+          "exit_code": 0
+        },
+        {
+          "result": "Test Files  10 passed (10); Tests  34 passed (34)",
+          "name": "frontend",
+          "exit_code": 0
+        },
+        {
+          "result": "Exit code 0",
+          "name": "format",
+          "exit_code": 0
+        },
+        {
+          "result": "Exit code 0",
+          "name": "build",
+          "exit_code": 0
+        },
+        {
+          "result": "Exit code 0",
+          "name": "compose-local",
+          "exit_code": 0
+        },
+        {
+          "result": "Exit code 0",
+          "name": "compose-prod",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "branch_head": "aa63531fb98443bf0af1d52e517c3cfec55acd2c",
+      "branch": "feature/confiabilidade-mtbf",
+      "topic": "mtbf",
+      "tested_commit": "502ac714e98206d477a3cc1ef80ae8ac8bdd9e67",
+      "checks": [
+        {
+          "result": "[INFO] Tests run: 96, Failures: 0, Errors: 0, Skipped: 0",
+          "exit_code": 0,
+          "name": "h2"
+        },
+        {
+          "result": "[INFO] Tests run: 96, Failures: 0, Errors: 0, Skipped: 0",
+          "exit_code": 0,
+          "name": "mysql"
+        },
+        {
+          "result": "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0",
+          "exit_code": 0,
+          "name": "upgrade"
+        },
+        {
+          "result": "Test Files  11 passed (11); Tests  36 passed (36)",
+          "exit_code": 0,
+          "name": "frontend"
+        },
+        {
+          "result": "Exit code 0",
+          "exit_code": 0,
+          "name": "format"
+        },
+        {
+          "result": "Exit code 0",
+          "exit_code": 0,
+          "name": "build"
+        },
+        {
+          "result": "Exit code 0",
+          "exit_code": 0,
+          "name": "compose-local"
+        },
+        {
+          "result": "Exit code 0",
+          "exit_code": 0,
+          "name": "compose-prod"
+        }
+      ]
+    },
+    {
+      "branch_head": "6b2997d4b381105f92506419b9e088bd59fa9d3e",
+      "branch": "feature/planos-preventivos",
+      "topic": "preventivas",
+      "tested_commit": "4e6bd36ae4e0aaa452b19ef0d4d6956dc2fab668",
+      "checks": [
+        {
+          "result": "[INFO] Tests run: 99, Failures: 0, Errors: 0, Skipped: 0",
+          "exit_code": 0,
+          "name": "h2"
+        },
+        {
+          "result": "[INFO] Tests run: 99, Failures: 0, Errors: 0, Skipped: 0",
+          "exit_code": 0,
+          "name": "mysql"
+        },
+        {
+          "result": "[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0",
+          "exit_code": 0,
+          "name": "upgrade"
+        },
+        {
+          "result": "Test Files  12 passed (12); Tests  38 passed (38)",
+          "exit_code": 0,
+          "name": "frontend"
+        },
+        {
+          "result": "Exit code 0",
+          "exit_code": 0,
+          "name": "format"
+        },
+        {
+          "result": "Exit code 0",
+          "exit_code": 0,
+          "name": "build"
+        },
+        {
+          "result": "Exit code 0",
+          "exit_code": 0,
+          "name": "compose-local"
+        },
+        {
+          "result": "Exit code 0",
+          "exit_code": 0,
+          "name": "compose-prod"
+        }
+      ]
+    }
+  ],
+  "manual_acceptance": "pending",
+  "source_equivalence": "backend/frontend/migrations/Docker/Compose/scripts unchanged against bbbf9fd; existing CI workflow modified; .gitattributes added"
+}
