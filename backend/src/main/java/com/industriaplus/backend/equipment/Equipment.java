@@ -15,6 +15,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "equipments")
@@ -42,6 +44,21 @@ public class Equipment {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "observation_start")
+    private LocalDate observationStart;
+
+    @Column(name = "observation_end")
+    private LocalDate observationEnd;
+
+    @Column(name = "operating_hours", precision = 12, scale = 2)
+    private BigDecimal operatingHours;
+
+    public void measureOperation(LocalDate start, LocalDate end, BigDecimal hours) {
+        observationStart = start;
+        observationEnd = end;
+        operatingHours = hours;
+    }
 
     public Equipment(String assetTag, String name, String description, Sector sector) {
         this.assetTag = assetTag;

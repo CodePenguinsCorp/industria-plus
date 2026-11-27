@@ -176,7 +176,7 @@ class SecurityAndHistoryIntegrationTest extends ApiIntegrationTestSupport {
         api.perform(
                         patch("/api/maintenance-requests/{id}/status", foreign)
                                 .contextPath("/api")
-                                .with(user("ana@test.local").roles("TECHNICIAN"))
+                                .with(authenticatedUser("ana@test.local"))
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\"status\":\"CLOSED\"}"))
@@ -184,7 +184,7 @@ class SecurityAndHistoryIntegrationTest extends ApiIntegrationTestSupport {
         api.perform(
                         post("/api/maintenance-requests/{id}/interventions", foreign)
                                 .contextPath("/api")
-                                .with(user("ana@test.local").roles("TECHNICIAN"))
+                                .with(authenticatedUser("ana@test.local"))
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
@@ -194,7 +194,7 @@ class SecurityAndHistoryIntegrationTest extends ApiIntegrationTestSupport {
         api.perform(
                         post("/api/maintenance-requests/{id}/interventions", own)
                                 .contextPath("/api")
-                                .with(user("ana@test.local").roles("TECHNICIAN"))
+                                .with(authenticatedUser("ana@test.local"))
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
@@ -209,7 +209,7 @@ class SecurityAndHistoryIntegrationTest extends ApiIntegrationTestSupport {
         api.perform(
                         post("/api/maintenance-requests/{id}/interventions", own)
                                 .contextPath("/api")
-                                .with(user("ana@test.local").roles("TECHNICIAN"))
+                                .with(authenticatedUser("ana@test.local"))
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\"description\":\"Limpeza e teste\",\"parts\":[]}"))
@@ -217,7 +217,7 @@ class SecurityAndHistoryIntegrationTest extends ApiIntegrationTestSupport {
         api.perform(
                         patch("/api/maintenance-requests/{id}/status", own)
                                 .contextPath("/api")
-                                .with(user("ana@test.local").roles("TECHNICIAN"))
+                                .with(authenticatedUser("ana@test.local"))
                                 .with(csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("{\"status\":\"IN_PROGRESS\"}"))
@@ -379,13 +379,13 @@ class SecurityAndHistoryIntegrationTest extends ApiIntegrationTestSupport {
         api.perform(
                         get("/api/technicians")
                                 .contextPath("/api")
-                                .with(user("gestor.a@test.local").roles("MANAGER")))
+                                .with(authenticatedUser("gestor.a@test.local")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].managerId").value(secondManager));
         api.perform(
                         get("/api/technicians/managers")
                                 .contextPath("/api")
-                                .with(user("gestor.a@test.local").roles("MANAGER")))
+                                .with(authenticatedUser("gestor.a@test.local")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
         mockMvc.perform(get("/api/users").contextPath("/api"))

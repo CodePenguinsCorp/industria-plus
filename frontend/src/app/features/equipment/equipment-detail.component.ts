@@ -4,9 +4,10 @@ import { EquipmentDetail } from '../../core/models';
 import { HistoryService } from '../../core/services/history.service';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { HistoryListComponent } from '../history/history-list.component';
+import { EquipmentMaintenanceComponent } from './equipment-maintenance.component';
 @Component({
   selector: 'app-equipment-detail',
-  imports: [RouterLink, HistoryListComponent],
+  imports: [RouterLink, HistoryListComponent, EquipmentMaintenanceComponent],
   template: ` <section class="page-stack">
     <header class="page-hero">
       <div class="page-hero__copy">
@@ -28,6 +29,10 @@ import { HistoryListComponent } from '../history/history-list.component';
         <p><strong>Setor:</strong> {{ data.equipment.sectorName }}</p>
         <p>{{ data.equipment.description || 'Sem descrição.' }}</p>
       </article>
+      <app-equipment-maintenance
+        [equipmentId]="data.equipment.id"
+        (planSaved)="refreshDetail(data.equipment.id)"
+      />
       <article class="panel">
         <h2 class="section-title">Chamados ({{ data.requests.length }})</h2>
         @if (data.requests.length === 0) {
@@ -139,5 +144,15 @@ export class EquipmentDetailComponent implements OnInit {
         >
       )[status] ?? status
     );
+  }
+
+  refreshDetail(id: number) {
+    this.service.equipment(id).subscribe({
+      next: (data) => this.detail.set(data),
+      error: (error: unknown) =>
+        this.error.set(
+          this.errors.toMessage(error, 'Não foi possível atualizar o histórico do equipamento.'),
+        ),
+    });
   }
 }

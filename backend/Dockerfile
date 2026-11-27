@@ -12,6 +12,8 @@ FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
+ENV TZ=America/Sao_Paulo
+
 COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080

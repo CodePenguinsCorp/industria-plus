@@ -1,10 +1,15 @@
 package com.industriaplus.backend.auth;
 
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -27,7 +32,17 @@ public class AuthController {
     }
 
     @PostMapping("/password")
-    public UserResponse changePassword(@Valid @RequestBody PasswordChangeRequest input) {
-        return users.changeOwnPassword(access.actor(), input);
+    public UserResponse changePassword(@Valid @RequestBody PasswordChangeRequest input,
+            HttpServletRequest request, HttpServletResponse response) {
+        UserResponse result = users.changeOwnPassword(access.actor(), input);
+        SessionUser principal = new SessionUser(access.current());
+        principal.eraseCredentials();
+        var context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(UsernamePasswordAuthenticationToken.authenticated(
+            principal, null, principal.getAuthorities()));
+        SecurityContextHolder.setContext(context);
+        request.changeSessionId();
+        new HttpSessionSecurityContextRepository().saveContext(context, request, response);
+        return result;
     }
 }

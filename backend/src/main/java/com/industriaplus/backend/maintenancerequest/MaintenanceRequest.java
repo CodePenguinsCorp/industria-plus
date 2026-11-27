@@ -69,6 +69,17 @@ public class MaintenanceRequest {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "preventive_plan_id")
+    private Long preventivePlanId;
+
+    @Column(name = "scheduled_for")
+    private java.time.LocalDate scheduledFor;
+
+    public void schedule(Long planId, java.time.LocalDate dueDate) {
+        preventivePlanId = planId;
+        scheduledFor = dueDate;
+    }
+
     public MaintenanceRequest(
         String title,
         String description,

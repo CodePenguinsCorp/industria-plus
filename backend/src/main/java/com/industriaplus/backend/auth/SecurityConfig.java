@@ -27,12 +27,7 @@ public class SecurityConfig {
     UserDetailsService userDetailsService(UserRepository users) {
         return email ->
                 users.findByEmailIgnoreCase(email.trim())
-                        .map(
-                                u ->
-                                        User.withUsername(u.getEmail())
-                                                .password(u.getPasswordHash())
-                                                .roles(u.getRole().name())
-                                                .build())
+                        .map(SessionUser::new)
                         .orElseThrow(() -> new UsernameNotFoundException("Credenciais inválidas"));
     }
 
@@ -76,6 +71,8 @@ public class SecurityConfig {
                                         .hasAnyRole("ADMIN", "MANAGER")
                                         .requestMatchers(HttpMethod.PATCH, "/technicians/*/manager")
                                         .hasRole("ADMIN")
+                                        .requestMatchers(HttpMethod.PUT, "/equipments/*/reliability", "/equipments/*/preventive-plan")
+                                        .hasAnyRole("ADMIN", "MANAGER")
                                         .requestMatchers(HttpMethod.DELETE, "/technicians/**")
                                         .hasRole("ADMIN")
                                         .requestMatchers(
