@@ -1,9 +1,18 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, DestroyRef, Input, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  EventEmitter,
+  Input,
+  Output,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 import { ApiErrorService } from '../../core/services/api-error.service';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -15,6 +24,14 @@ interface Reliability {
   mtbfHours: number | null;
   state: 'INSUFFICIENT_DATA' | 'NO_FAILURES' | 'CALCULATED';
 }
+interface PreventivePlan {
+  id: number;
+  title: string;
+  description: string;
+  intervalDays: number;
+  nextDueDate: string;
+  enabled: boolean;
+}
 
 @Component({
   selector: 'app-equipment-maintenance',
@@ -23,12 +40,14 @@ interface Reliability {
 })
 export class EquipmentMaintenanceComponent implements OnInit {
   @Input({ required: true }) equipmentId!: number;
+  @Output() readonly planSaved = new EventEmitter<void>();
   readonly auth = inject(AuthService);
   private readonly http = inject(HttpClient);
   private readonly errors = inject(ApiErrorService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly fb = inject(FormBuilder);
   readonly reliability = signal<Reliability | null>(null);
+  readonly plan = signal<PreventivePlan | null>(null);
   readonly error = signal<string | null>(null);
   readonly success = signal<string | null>(null);
   readonly loading = signal(true);
@@ -38,16 +57,25 @@ export class EquipmentMaintenanceComponent implements OnInit {
     endDate: ['', Validators.required],
     operatingHours: [0, [Validators.required, Validators.min(0.01)]],
   });
+  readonly planForm = this.fb.nonNullable.group({
+    title: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(160)]],
+    description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(2000)]],
+    intervalDays: [30, [Validators.required, Validators.min(1), Validators.max(3650)]],
+    nextDueDate: ['', Validators.required],
+    enabled: [true],
+  });
 
   ngOnInit() {
-    this.http
-      .get<Reliability>(this.url('reliability'))
+    forkJoin({
+      reliability: this.http.get<Reliability>(this.url('reliability')),
+      plan: this.http.get<PreventivePlan | null>(this.url('preventive-plan')),
+    })
       .pipe(
         finalize(() => this.loading.set(false)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (reliability) => {
+        next: ({ reliability, plan }) => {
           this.reliability.set(reliability);
           if (reliability.startDate && reliability.endDate && reliability.operatingHours !== null) {
             this.reliabilityForm.setValue({
@@ -56,6 +84,8 @@ export class EquipmentMaintenanceComponent implements OnInit {
               operatingHours: reliability.operatingHours,
             });
           }
+          this.plan.set(plan);
+          if (plan) this.planForm.patchValue(plan);
         },
         error: (error: unknown) =>
           this.error.set(this.errors.toMessage(error, 'Não foi possível carregar a manutenção.')),
@@ -85,6 +115,36 @@ export class EquipmentMaintenanceComponent implements OnInit {
         },
         error: (error: unknown) =>
           this.error.set(this.errors.toMessage(error, 'Não foi possível salvar a medição.')),
+      });
+  }
+
+  savePlan() {
+    this.error.set(null);
+    this.success.set(null);
+    if (!this.auth.canManage() || this.saving()) return;
+    if (this.planForm.invalid) {
+      this.planForm.markAllAsTouched();
+      this.error.set('Preencha o título, a descrição, a periodicidade e a próxima data.');
+      return;
+    }
+    this.saving.set(true);
+    this.http
+      .put<PreventivePlan>(this.url('preventive-plan'), this.planForm.getRawValue())
+      .pipe(
+        finalize(() => this.saving.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (data) => {
+          this.plan.set(data);
+          this.planForm.patchValue(data);
+          this.planSaved.emit();
+          this.success.set(
+            'Plano salvo. Preventivas vencidas são geradas automaticamente na fila de chamados.',
+          );
+        },
+        error: (error: unknown) =>
+          this.error.set(this.errors.toMessage(error, 'Não foi possível salvar o plano.')),
       });
   }
 

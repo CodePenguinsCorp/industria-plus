@@ -29,7 +29,10 @@ import { EquipmentMaintenanceComponent } from './equipment-maintenance.component
         <p><strong>Setor:</strong> {{ data.equipment.sectorName }}</p>
         <p>{{ data.equipment.description || 'Sem descrição.' }}</p>
       </article>
-      <app-equipment-maintenance [equipmentId]="data.equipment.id" />
+      <app-equipment-maintenance
+        [equipmentId]="data.equipment.id"
+        (planSaved)="refreshDetail(data.equipment.id)"
+      />
       <article class="panel">
         <h2 class="section-title">Chamados ({{ data.requests.length }})</h2>
         @if (data.requests.length === 0) {
@@ -141,5 +144,15 @@ export class EquipmentDetailComponent implements OnInit {
         >
       )[status] ?? status
     );
+  }
+
+  refreshDetail(id: number) {
+    this.service.equipment(id).subscribe({
+      next: (data) => this.detail.set(data),
+      error: (error: unknown) =>
+        this.error.set(
+          this.errors.toMessage(error, 'Não foi possível atualizar o histórico do equipamento.'),
+        ),
+    });
   }
 }
