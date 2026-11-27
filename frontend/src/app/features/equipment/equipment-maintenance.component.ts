@@ -1,6 +1,15 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, DestroyRef, Input, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  EventEmitter,
+  Input,
+  Output,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize, forkJoin } from 'rxjs';
@@ -31,6 +40,7 @@ interface PreventivePlan {
 })
 export class EquipmentMaintenanceComponent implements OnInit {
   @Input({ required: true }) equipmentId!: number;
+  @Output() readonly planSaved = new EventEmitter<void>();
   readonly auth = inject(AuthService);
   private readonly http = inject(HttpClient);
   private readonly errors = inject(ApiErrorService);
@@ -128,6 +138,7 @@ export class EquipmentMaintenanceComponent implements OnInit {
         next: (data) => {
           this.plan.set(data);
           this.planForm.patchValue(data);
+          this.planSaved.emit();
           this.success.set(
             'Plano salvo. Preventivas vencidas são geradas automaticamente na fila de chamados.',
           );
