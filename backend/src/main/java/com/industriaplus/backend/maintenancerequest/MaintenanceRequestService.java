@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 
 import java.util.Comparator;
 import java.util.List;
@@ -86,6 +87,8 @@ public class MaintenanceRequestService {
             .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "MAINTENANCE_REQUEST_NOT_FOUND", "Chamado não encontrado.")));
     }
 
+    // Após aguardar o lock do técnico, a contagem deve enxergar a atribuição já confirmada.
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public MaintenanceRequestResponse assign(
         Long requestId,
         MaintenanceRequestAssignmentRequest assignment
