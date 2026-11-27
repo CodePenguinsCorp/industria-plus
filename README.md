@@ -19,14 +19,14 @@ Grupo: `Code Penguins`
 
 ## Escopo do produto
 
-O N1 entrega o cadastro e a consulta de setores, equipamentos e técnicos, a abertura de chamados
+A aplicação oferece cadastro e consulta de setores, equipamentos e técnicos, abertura de chamados
 preventivos ou corretivos, filtros por status e urgência, atribuição e reatribuição de técnicos e o
 acompanhamento do chamado até o encerramento.
 
 Regra de negócio crítica: um técnico não pode ter mais de dois chamados com urgência `Alta`
 abertos ao mesmo tempo. A validação é transacional no backend e protege atribuições concorrentes.
 
-As evoluções N2/N3 incluem histórico de troca de peças por máquina, cálculo de MTBF e
+As funcionalidades incluem histórico de troca de peças por máquina, cálculo de MTBF e
 agendamento automático de manutenções preventivas.
 
 ## Stack
@@ -136,6 +136,11 @@ docker compose exec mysql mysqladmin ping -h 127.0.0.1 -uroot -p
 
 ## Implantação em produção
 
+O acesso público deve usar HTTPS, com terminação TLS no proxy reverso ou balanceador à frente
+do Nginx. A porta 80 abaixo representa o tráfego interno após essa terminação. O cookie de sessão
+de produção usa `SESSION_COOKIE_SECURE=true`; o login pelo endereço HTTP direto não mantém a
+sessão. Para desenvolvimento por HTTP, use o ambiente local descrito acima.
+
 A topologia de produção expõe apenas o Nginx do frontend. Requisições para `/api` são encaminhadas
 internamente ao backend, e o backend acessa o MySQL pela rede privada do Compose:
 
@@ -206,6 +211,11 @@ docker compose --env-file .env.prod -f compose.prod.yaml down
 Não use `down -v` em produção, pois esse parâmetro remove o volume persistente do MySQL.
 
 ## Execução manual para desenvolvimento
+
+As datas do domínio usam `America/Sao_Paulo`. Fora dos containers, inicie a JVM com
+`JAVA_TOOL_OPTIONS=-Duser.timezone=America/Sao_Paulo` para manter chamados, períodos do MTBF e
+agendamentos no mesmo calendário local. Os containers já recebem esse fuso. Registros anteriores
+não são reescritos automaticamente; confirme o fuso da instalação de origem ao importar históricos.
 
 Suba somente o banco:
 
@@ -333,6 +343,10 @@ vinculado e exclusão), `/users` e `/maintenance-requests`. O contrato completo 
 
 ## Documentação
 
+- [Confiabilidade e preventivas automáticas](docs/produto/evolucao-n3.md)
+- [Parecer do projeto e comparativo com o pacote recebido](docs/qualidade/parecer-do-projeto.md)
+- [Relatório da Etapa 3 e pendências de homologação](docs/qualidade/relatorio-etapa-3.md)
+- [Roteiro do pitch final](docs/apresentacao/roteiro-pitch-final.md)
 - [Escopo funcional](docs/produto/escopo.md)
 - [Premissa inicial e critérios de aceite da N1](docs/produto/premissa-inicial%20N1.md)
 - [Matriz RACI](docs/governanca/raci.md)

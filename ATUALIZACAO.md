@@ -1,5 +1,13 @@
 # Atualização: login, perfis e histórico
 
+## Confiabilidade e preventivas — 24/11/2026
+
+A retomada acrescentou MTBF com horas reais e período informado pelo gestor, plano preventivo por
+equipamento, geração automática de chamados e migration V5. Consulte
+[confiabilidade e preventivas](docs/produto/evolucao-n3.md) para critérios, limites e endpoints. As seções abaixo
+descrevem o pacote recebido e as migrations V3/V4; os limites indicados para aquele pacote não
+substituem o estado atual documentado nessa evolução.
+
 Esta versão mantém o estilo original e os cadastros/chamados existentes. A migração V3 adiciona tabelas para usuários, histórico e peças. A migração V4 transforma os técnicos em usuários (perfil Técnico), remove a tabela `technicians` sem perder registros, adiciona o gestor vinculado ao técnico e a troca obrigatória da senha provisória.
 
 ### O que a migração V4 faz com os dados existentes
@@ -34,7 +42,7 @@ powershell -ExecutionPolicy Bypass -File .\run-local.ps1 -Build
 
 6. Abra http://localhost:4202 e entre com o e-mail e a senha escolhidos.
 
-O primeiro administrador só é criado se ainda não houver usuários no banco. Alterar essa variável depois não redefine senhas nem cria outro administrador. Após confirmar o primeiro acesso, você pode remover `INITIAL_ADMIN_PASSWORD` do `.env` e recriar o backend; o acesso continua armazenado no banco com senha BCrypt.
+O primeiro administrador é criado quando ainda não existe um usuário com perfil Administrador, mesmo que já existam técnicos migrados. Use um e-mail que não pertença a outro usuário: o bootstrap não promove contas nem altera suas senhas. Quando já há administrador, alterar essa variável não redefine senhas nem cria outro administrador. Após confirmar o primeiro acesso, você pode remover `INITIAL_ADMIN_PASSWORD` do `.env` e recriar o backend; o acesso continua armazenado no banco com senha BCrypt.
 
 Para instalação nova, copie `.env.example` para `.env`, preencha a senha e execute o mesmo comando.
 
