@@ -9,7 +9,6 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD obrigatorio}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?MYSQL_ROOT_PASSWORD obrigatorio}
       MYSQL_ROOT_HOST: "%"
-      TZ: America/Sao_Paulo
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -29,7 +28,7 @@ services:
     environment:
       INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:-admin@industria.local}
       INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
-      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
       APP_PORT: 8080
       DB_HOST: mysql
       DB_PORT: 3306

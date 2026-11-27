@@ -50,7 +50,7 @@ FRONTEND_IMAGE=$FrontendImage
 LOG_LEVEL=INFO
 INITIAL_ADMIN_EMAIL=admin@industria.local
 INITIAL_ADMIN_PASSWORD=$initialAdminPassword
-SESSION_COOKIE_SECURE=false
+SESSION_COOKIE_SECURE=true
 "@
 
 $outputDirectory = Split-Path -Parent $OutputPath

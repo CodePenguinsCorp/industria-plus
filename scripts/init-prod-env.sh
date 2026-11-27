@@ -44,7 +44,7 @@ FRONTEND_IMAGE=$frontend_image
 LOG_LEVEL=INFO
 INITIAL_ADMIN_EMAIL=admin@industria.local
 INITIAL_ADMIN_PASSWORD=$initial_admin_password
-SESSION_COOKIE_SECURE=false
+SESSION_COOKIE_SECURE=true
 EOF
 
 echo "Arquivo $output_path criado com senhas fortes."
