@@ -28,7 +28,7 @@ Para integrar, aprovar na ordem. Preservar a ancestralidade das branches enquant
 | Retomada, análise de regressões | Cadastro normalizado e bootstrap administrativo após migração. | Correções separadas no PR de acesso. |
 | RNF03 / BL-N1-004 | Persistência preservando o volume. | Evidência isolada de 24/11 mantida. Não equivale a restauração de backup. |
 | Migração e preservação da instalação | Dados e vínculos da N1 preservados até V5. | Teste dedicado em MySQL executado novamente. |
-| Processo de qualidade | Compilação, formatação, testes e builds. | Resultados por branch e commit nos arquivos `verificacao-*.json`; CI remoto a conferir nos PRs após a publicação. |
+| Processo de qualidade | Compilação, formatação, testes e builds. | Resultados por branch e commit nos arquivos `verificacao-*.json`; CI remoto acompanha os checks dos PRs publicados. |
 | Atividade da professora | Análise, testes, débitos e relatório. | Documentos preparados; papéis, origem formal, revisão e envio dependem da equipe. |
 
 ## Como revisar cada alteração
@@ -65,14 +65,14 @@ A V5 mantém o conteúdo já validado, inclusive as estruturas compartilhadas en
 
 ## Estado da publicação em 27 de novembro
 
-As cinco branches foram publicadas e estão disponíveis para revisão. Os PRs ainda não foram criados: o conector retornou 403; a alternativa de leitura de credencial local foi bloqueada pela revisão automática antes de executar; a automação da sessão autenticada do navegador foi interrompida por não conseguir determinar a URL atual com confiança.
+Os cinco PRs estão publicados, abertos e disponíveis para revisão. As bases foram verificadas e os diffs preservam a separação por tema. Nenhuma aprovação ou integração foi realizada.
 
-Títulos, descrições, bases e roteiros estão preparados. O CI de pull request aguarda a criação dos PRs. Nenhuma aprovação ou integração foi realizada.
+Cada descrição contém escopo, evidências, riscos, dependências e checklist de PO/QA. O CI foi iniciado em todos os PRs; os links dos checks mostram a execução correspondente à revisão atual. As suítes locais continuam registradas por commit nos arquivos de verificação.
 
-| Tema | Comparação para criar o PR |
-| --- | --- |
-| Acesso e histórico | [develop → acesso](https://github.com/CodePenguinsCorp/industria-plus/compare/develop...feature/acesso-e-historico?expand=1) |
-| Chamados | [acesso → chamados](https://github.com/CodePenguinsCorp/industria-plus/compare/feature/acesso-e-historico...fix/atribuicao-e-atualizacao?expand=1) |
-| MTBF | [chamados → MTBF](https://github.com/CodePenguinsCorp/industria-plus/compare/fix/atribuicao-e-atualizacao...feature/confiabilidade-mtbf?expand=1) |
-| Preventivas | [MTBF → preventivas](https://github.com/CodePenguinsCorp/industria-plus/compare/feature/confiabilidade-mtbf...feature/planos-preventivos?expand=1) |
-| Documentação | [preventivas → documentação](https://github.com/CodePenguinsCorp/industria-plus/compare/feature/planos-preventivos...docs/revisao-e-entrega?expand=1) |
+| Tema | Pull request | Verificações remotas |
+| --- | --- | --- |
+| Acesso e histórico | [PR 1](https://github.com/CodePenguinsCorp/industria-plus/pull/1) | [CI](https://github.com/CodePenguinsCorp/industria-plus/pull/1/checks) |
+| Chamados | [PR 2](https://github.com/CodePenguinsCorp/industria-plus/pull/2) | [CI](https://github.com/CodePenguinsCorp/industria-plus/pull/2/checks) |
+| MTBF | [PR 3](https://github.com/CodePenguinsCorp/industria-plus/pull/3) | [CI](https://github.com/CodePenguinsCorp/industria-plus/pull/3/checks) |
+| Preventivas | [PR 4](https://github.com/CodePenguinsCorp/industria-plus/pull/4) | [CI](https://github.com/CodePenguinsCorp/industria-plus/pull/4/checks) |
+| Documentação | [PR 5](https://github.com/CodePenguinsCorp/industria-plus/pull/5) | [CI](https://github.com/CodePenguinsCorp/industria-plus/pull/5/checks) |

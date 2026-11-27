@@ -180,5 +180,62 @@
     }
   ],
   "manual_acceptance": "pending",
-  "source_equivalence": "backend/frontend/migrations/Docker/Compose/scripts unchanged against bbbf9fd; existing CI workflow modified; .gitattributes added"
+  "source_equivalence": "backend/frontend/migrations/Docker/Compose/scripts unchanged against bbbf9fd; existing CI workflow modified; .gitattributes added",
+  "publication": {
+    "ci": "See checks for each published PR; local test results above remain tied to tested commits.",
+    "date": "2026-11-27",
+    "merged": false,
+    "pull_requests": [
+      {
+        "number": 1,
+        "head": "feature/acesso-e-historico",
+        "state": "open",
+        "draft": false,
+        "title": "feat: incorporar controle de acesso e histórico",
+        "head_sha": "a255daf1fe882f99992a6629137b403996be546f",
+        "url": "https://github.com/CodePenguinsCorp/industria-plus/pull/1",
+        "base": "develop"
+      },
+      {
+        "number": 2,
+        "head": "fix/atribuicao-e-atualizacao",
+        "state": "open",
+        "draft": false,
+        "title": "fix: corrigir atribuição e atualização de chamados",
+        "head_sha": "c2085fb1e270e68e5cafe5e349950a16bf3fe17d",
+        "url": "https://github.com/CodePenguinsCorp/industria-plus/pull/2",
+        "base": "feature/acesso-e-historico"
+      },
+      {
+        "number": 3,
+        "head": "feature/confiabilidade-mtbf",
+        "state": "open",
+        "draft": false,
+        "title": "feat: calcular MTBF por equipamento",
+        "head_sha": "aa63531fb98443bf0af1d52e517c3cfec55acd2c",
+        "url": "https://github.com/CodePenguinsCorp/industria-plus/pull/3",
+        "base": "fix/atribuicao-e-atualizacao"
+      },
+      {
+        "number": 4,
+        "head": "feature/planos-preventivos",
+        "state": "open",
+        "draft": false,
+        "title": "feat: automatizar planos de manutenção preventiva",
+        "head_sha": "6b2997d4b381105f92506419b9e088bd59fa9d3e",
+        "url": "https://github.com/CodePenguinsCorp/industria-plus/pull/4",
+        "base": "feature/confiabilidade-mtbf"
+      },
+      {
+        "number": 5,
+        "head": "docs/revisao-e-entrega",
+        "state": "open",
+        "draft": false,
+        "title": "docs: consolidar planejamento e revisão de PO e QA",
+        "head_sha": "624ed7e4801d2f5faff1ab6f11e0782b6c88b1bb",
+        "url": "https://github.com/CodePenguinsCorp/industria-plus/pull/5",
+        "base": "feature/planos-preventivos"
+      }
+    ]
+  }
 }
