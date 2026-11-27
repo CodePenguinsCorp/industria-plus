@@ -62,3 +62,17 @@ Modelo para registrar cada execução:
 O histórico anterior foi mantido em branch local de backup. Os commits novos reagrupam o trabalho em temas sem alterar o comportamento final da aplicação. A comparação de backend, frontend, migrations, Docker, Compose e geradores contra o snapshot anterior foi executada; somente a configuração de CI e finais de linha foi acrescentada durante esta organização.
 
 A V5 mantém o conteúdo já validado, inclusive as estruturas compartilhadas entre MTBF e preventivas. Nenhuma migração aplicada foi reescrita na sequência. O pacote recebido foi importado como snapshot identificado, não apresentado como autoria nova da equipe.
+
+## Estado da publicação em 27 de novembro
+
+As cinco branches foram publicadas e estão disponíveis para revisão. Os PRs ainda não foram criados: o conector retornou 403; a alternativa de leitura de credencial local foi bloqueada pela revisão automática antes de executar; a automação da sessão autenticada do navegador foi interrompida por não conseguir determinar a URL atual com confiança.
+
+Títulos, descrições, bases e roteiros estão preparados. O CI de pull request aguarda a criação dos PRs. Nenhuma aprovação ou integração foi realizada.
+
+| Tema | Comparação para criar o PR |
+| --- | --- |
+| Acesso e histórico | [develop → acesso](https://github.com/CodePenguinsCorp/industria-plus/compare/develop...feature/acesso-e-historico?expand=1) |
+| Chamados | [acesso → chamados](https://github.com/CodePenguinsCorp/industria-plus/compare/feature/acesso-e-historico...fix/atribuicao-e-atualizacao?expand=1) |
+| MTBF | [chamados → MTBF](https://github.com/CodePenguinsCorp/industria-plus/compare/fix/atribuicao-e-atualizacao...feature/confiabilidade-mtbf?expand=1) |
+| Preventivas | [MTBF → preventivas](https://github.com/CodePenguinsCorp/industria-plus/compare/feature/confiabilidade-mtbf...feature/planos-preventivos?expand=1) |
+| Documentação | [preventivas → documentação](https://github.com/CodePenguinsCorp/industria-plus/compare/feature/planos-preventivos...docs/revisao-e-entrega?expand=1) |
