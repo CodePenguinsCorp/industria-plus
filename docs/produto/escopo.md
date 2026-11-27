@@ -49,6 +49,9 @@ As evoluções previstas, fora do N1, são:
 
 Esses itens devem passar novamente pelo Definition of Ready antes de entrarem em desenvolvimento.
 
+As regras de MTBF com horas reais e preventivas periódicas foram confirmadas em 24/11/2026 e
+implementadas na retomada N3. Consulte [histórias, critérios e contratos da evolução](evolucao-n3.md).
+
 ## Premissas refinadas
 
 Os pontos abaixo foram registrados inicialmente como pendências de refinamento e são preservados

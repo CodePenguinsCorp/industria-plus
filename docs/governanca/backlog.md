@@ -1,5 +1,9 @@
 # Backlog da entrega N1
 
+> Este backlog preserva o levantamento da primeira entrega. Para o estado de 27/11/2026,
+> incluindo validações já concluídas e pendências remanescentes, consulte o
+> [parecer do projeto](../qualidade/parecer-do-projeto.md#pendências-antigas-e-situação-atual).
+
 ## Objetivo
 
 Este documento consolida o trabalho realizado no repositório, sua autoria e as atividades que ainda
@@ -58,7 +62,7 @@ não indicam que a pessoa já iniciou ou aceitou individualmente a atividade.
 | BL-N1-004 | Alta | Pendente | Validar a persistência do volume MySQL. | José | Lucas | Após cadastrar dados, reiniciar e recriar os contêineres sem remover o volume, os mesmos IDs e vínculos permanecem consultáveis; evidências ficam registradas. |
 | BL-N1-005 | Alta | Pendente | Reproduzir a stack em ambiente limpo e validar a topologia de produção. | Lucas | José e André | Migrations são aplicadas, frontend acessa a API pelo Nginx, backend acessa o MySQL e somente o frontend publica porta no host em produção. |
 | BL-N1-006 | Alta | Pendente | Executar o roteiro funcional completo da N1 e registrar evidências por cenário de aceite. | Lucas e Matheus | José e André | Lucas executa e registra as validações; Matheus confere a aderência aos requisitos; todos os cenários possuem resultado e evidência vinculados ao commit testado. |
-| BL-N1-007 | Média | Pendente | Exibir a data de atualização do chamado na interface. | André | José e Lucas | A tela apresenta `updatedAt` no formato definido e o valor muda após atribuição ou transição de status; o comportamento é validado por teste e evidência visual. |
+| BL-N1-007 | Média | Implementado; aceite visual pendente | Exibir a data de atualização do chamado na interface. | André | José e Lucas | Implementação e teste de carregamento, atribuição e status verificados em 24/11/2026; falta a evidência visual integrada e o aceite. Ver [relatório da Etapa 3](../qualidade/relatorio-etapa-3.md). |
 | BL-N1-008 | Média | Pendente | Validar comunicação JSON, caracteres acentuados, datas e envelopes de erro. | José e André | Lucas e Matheus | José valida o contrato da API; André valida sua apresentação na interface; Lucas registra as evidências; Matheus confere a aderência aos requisitos. |
 | BL-N1-009 | Média | Pendente | Produzir e revisar a medição inicial das métricas de qualidade da release N1. | Lucas e Matheus | José e André | Lucas consolida os indicadores; Matheus avalia a prontidão da entrega; o registro contém commit, data, testes, cobertura de requisitos e aceite, cenários pendentes e bugs por severidade. |
 | BL-N1-010 | Alta | Pendente | Homologar formalmente a entrega N1. | Matheus | Lucas | Todos os cenários obrigatórios foram executados, não há falha pendente nem bug crítico/alto ligado à entrega, e o aceite do PO está registrado. |
@@ -107,9 +111,9 @@ prioridade, risco, impacto e custo de postergação.
 | Campo | Registro |
 | --- | --- |
 | Status | Pendente |
-| Descrição do problema | Os componentes de equipamentos, técnicos e página inicial não possuem arquivos de teste próprios. A estratégia do projeto prevê testes de componentes, formulários, serviços e estados da interface. |
+| Descrição do problema | Na N1, equipamentos, técnicos e página inicial não possuíam testes próprios. O pacote recebido em 24/11 inclui `technician.component.spec.ts`; permanecem as lacunas de equipamentos e página inicial. A estratégia prevê testes de componentes, formulários, serviços e estados da interface. |
 | Parte afetada | `EquipmentComponent`, `TechnicianComponent`, `HomeComponent` e os fluxos de cadastro, busca, carga técnica e métricas da página inicial. |
-| Motivo da solução definitiva não ter sido aplicada | O histórico analisado não registra uma justificativa. Foram identificados testes para setores, chamados e tratamento de erros, mas não para esses três componentes. |
+| Motivo da solução definitiva não ter sido aplicada | O histórico da N1 não registra uma justificativa. A cobertura de técnicos foi ampliada no pacote recebido; equipamentos e página inicial ainda precisam dos cenários previstos. |
 | Impacto e risco | Validações de formulário, normalização dos dados, filtros, mensagens de erro e cálculos do dashboard podem sofrer regressões sem detecção automatizada no frontend. |
 | Prioridade | Média, por afetar testes, manutenção e evolução dos fluxos da N1. |
 | Responsável pela correção | André, com apoio de Lucas. |

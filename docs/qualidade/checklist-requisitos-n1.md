@@ -1,5 +1,9 @@
 # Checklist de atendimento aos requisitos da N1
 
+> Esta checklist preserva a inspeção histórica. Testes e validações adicionais executados
+> em 24/11/2026 estão consolidados no [parecer atual do projeto](parecer-do-projeto.md).
+> As pendências abaixo não representam, isoladamente, o estado atual de execução.
+
 ## Objetivo e base da análise
 
 Esta checklist relaciona os 18 requisitos funcionais e os 10 requisitos não funcionais da
@@ -70,11 +74,11 @@ permanece pendente até que sejam registradas evidências de execução.
   `@CreationTimestamp` gera a data de criação. O DTO de abertura não oferece esses campos.
   Evidências: [entidade do chamado][request-entity] e [domínio de chamados][requests].
 
-- [ ] **RF12 — Consultar todos os dados do chamado. Atendimento parcial na interface.**
+- [ ] **RF12 — Consultar todos os dados do chamado. Implementado; aceite integrado pendente.**
   A API retorna todos os campos exigidos, incluindo `createdAt` e `updatedAt`. A tela apresenta
-  identificação, título, descrição, equipamento, setor, tipo, urgência, status, responsável e
-  criação, mas não exibe `updatedAt`. Para considerar o atendimento completo pela interface,
-  falta apresentar a data de atualização e validar sua exibição após uma alteração.
+  identificação, título, descrição, equipamento, setor, tipo, urgência, status, responsável,
+  criação e última atualização. Em 24/11/2026, um teste de componente verificou `updatedAt`
+  no carregamento e após atribuição e mudança de status. Falta o aceite visual integrado.
   Evidências: [resposta da API][request-response] e [template de chamados][request-template].
 
 - [x] **RF13 — Filtrar chamados.** A interface envia filtros opcionais; a consulta do
@@ -191,7 +195,8 @@ Isso não comprova o comportamento de bloqueios, persistência ou migrations em 
   limites de tamanho, duplicidades e referências inexistentes (RF01–RF06 e RNF02).
 - [ ] Abrir chamados preventivos e corretivos nas três urgências, conferindo os dados iniciais
   e a rejeição de equipamento/setor incompatíveis (RF07–RF11).
-- [ ] Resolver a ausência de `updatedAt` na tela e conferir todos os dados consultáveis (RF12).
+- [x] Resolver a ausência de `updatedAt` e testar sua atualização no componente (RF12, 24/11/2026).
+- [ ] Conferir todos os dados consultáveis na aplicação integrada e registrar evidência visual (RF12).
 - [ ] Conferir filtros isolados e combinados, prioridade, ordem cronológica e desempate por ID
   com dados controlados (RF13–RF14).
 - [ ] Atribuir, reatribuir, repetir a mesma atribuição e executar todas as transições permitidas
